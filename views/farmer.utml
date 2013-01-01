@@ -1,9 +1,9 @@
 <h1><%- farmer.name %> <small>(<%- farmer.id %>)</small></h1>
 
-<p><%- farmer.coins %> coins </p>
+<p><img src="/images/coin.svg" height="30" width="30"> <%- farmer.coins %> coins</p>
 
-  <ul class="thumbnails">
-    <% _.each(farmer.plots, function(plot) { %>
-       <%= partial("plot", {plot: plot}) %>
-    <% }); %>
-  </ul>
+<ul class="thumbnails">
+  <% _.each(farmer.plots, function(plot) { %>
+  <%= partial("plot", {plot: plot}) %>
+  <% }); %>
+</ul>
