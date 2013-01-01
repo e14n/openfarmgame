@@ -1,0 +1,9 @@
+{
+    "name": "openfarmgame",
+    "version": "0.0.1",
+    "private": true,
+    "dependencies": {
+      "express": "2.5.x",
+       "utml": "0.2.x"
+  }
+}
