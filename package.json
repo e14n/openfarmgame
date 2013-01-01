@@ -4,6 +4,7 @@
     "private": true,
     "dependencies": {
       "express": "2.5.x",
-       "utml": "0.2.x"
+       "utml": "0.2.x",
+       "underscore": "1.4.x"
   }
 }
