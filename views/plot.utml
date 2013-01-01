@@ -1,0 +1,13 @@
+<li class="span3">
+  <div class="thumbnail">
+    <% if (plot.crop) { %>
+    <img src="/images/<%- plot.crop.name.toLowerCase() %>.jpg" width="300" height="200" alt="<%- plot.crop.name %>">
+    <h3><%- plot.crop.name %></h3>
+    <p><%- plot.crop.status %></p>
+    <% } else { %>
+    <img src="/images/dirt.jpg" width="300" height="200" alt="Empty">
+    <h3><i>Empty</i></h3>
+    <p>This is an empty plot. Plant a crop!</p>
+    <% } %>
+  </div>
+</li>
