@@ -4,10 +4,20 @@
     <img src="/images/<%- plot.crop.name.toLowerCase() %>.jpg" width="300" height="200" alt="<%- plot.crop.name %>">
     <h3><%- plot.crop.name %></h3>
     <p><%- plot.crop.status %></p>
+    <p>
+      <% if (plot.crop.needsWater) { %>
+      <a class="btn btn-primary">Water</a>
+      <% } %>
+      <% if (plot.crop.ready) { %>
+      <a class="btn btn-primary">Harvest</a>
+      <% } %>
+      <a class="btn">Tear up</a>
+    </p>
     <% } else { %>
     <img src="/images/dirt.jpg" width="300" height="200" alt="Empty">
-    <h3><i>Empty</i></h3>
-    <p>This is an empty plot. Plant a crop!</p>
+    <h3>(Empty)</h3>
+    <p>This is an empty plot.</p>
+    <p><a class="btn btn-primary" href="/plant/<%- farmer.id %>/<%- index %>">Plant</a></p>
     <% } %>
   </div>
 </li>

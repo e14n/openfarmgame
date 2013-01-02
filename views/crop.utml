@@ -1,0 +1,7 @@
+<li class="span3">
+  <div class="thumbnail">
+    <img src="/images/<%- crop.name.toLowerCase() %>.jpg" width="300" height="200" alt="<%- crop.name %>">
+    <h3><%- crop.name %></h3>
+    <p>Cost: <%- crop.cost %> coins</p>
+  </div>
+</li>

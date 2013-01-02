@@ -2,8 +2,10 @@
 
 <p><img src="/images/coin.svg" height="30" width="30"> <%- farmer.coins %> coins</p>
 
+<h3>Plots</h3>
+
 <ul class="thumbnails">
-  <% _.each(farmer.plots, function(plot) { %>
-  <%= partial("plot", {plot: plot}) %>
+  <% _.each(farmer.plots, function(plot, index) { %>
+  <%= partial("plot", {plot: plot, index: index}) %>
   <% }); %>
 </ul>

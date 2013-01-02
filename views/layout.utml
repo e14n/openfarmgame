@@ -46,9 +46,13 @@
     </div>
 
     <div class="container">
+
       <div class="content">
         <%= body %>
       </div>
+
+      <hr>
+
       <footer>
         OpenFarmGame is brought to you by <a href="http://e14n.com/">E14N</a>, because we think you&apos;re awesome.
       </footer>
