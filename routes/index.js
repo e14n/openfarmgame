@@ -137,62 +137,45 @@ exports.authorized = function(req, res, next) {
 
 exports.farmer = function(req, res, next) {
 
-    var id = req.params.webfinger,
-        farmer = testFarmer(id);
+    var id = req.params.webfinger;
 
-    res.render('farmer', { title: 'Farmer ' + farmer.name, farmer: farmer });
+    async.waterfall([
+        function(callback) {
+            Farmer.get(id, callback);
+        }
+    ], function(err, farmer) {
+        if (err) {
+            next(err);
+        } else {
+            res.render('farmer', { title: 'Farmer ' + farmer.name, farmer: farmer });
+        }
+    });
 };
 
 exports.plant = function(req, res, next) {
     var id = req.params.webfinger,
         plot = req.params.plot,
-        farmer = testFarmer(id),
         crops = testCrops();
 
-    res.render('plant', { title: 'Plant a new crop', farmer: farmer, plot: plot, crops: crops });
+    async.waterfall([
+        function(callback) {
+            Farmer.get(id, callback);
+        }
+    ], function(err, farmer) {
+        if (err) {
+            next(err);
+        } else {
+            res.render('plant', { title: 'Plant a new crop', farmer: farmer, plot: plot, crops: crops });
+        }
+    });
 };
 
 exports.handlePlant = function(req, res, next) {
     var id = req.body.webfinger,
         plot = req.body.plot,
-        farmer = testFarmer(id),
         crops = testCrops();
 
     res.redirect("/farmer/"+id, 303);
-};
-
-var testFarmer = function(id) {
-    return {
-        id: id,
-        name: "Test Farmer",
-        coins: 10,
-        plots: [
-            {
-                id: "tag:openfarmgame.com,2013:"+id+":plot:1",
-                crop: {
-                    id: "tag:openfarmgame.com,2013:"+id+":crop:corn:1",
-                    name: "Corn",
-                    status: "New",
-                    needsWater: true
-                }
-            },
-            {
-                id: "tag:openfarmgame.com,2013:"+id+":plot:2",
-                crop: {
-                    id: "tag:openfarmgame.com,2013:"+id+":crop:tomatoes:3",
-                    name: "Tomatoes",
-                    status: "Ready",
-                    ready: true
-                }
-            },
-            {
-            },
-            {
-            },
-            {
-            }
-        ]
-    };
 };
 
 var testCrops = function() {
