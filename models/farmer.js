@@ -32,7 +32,11 @@ Farmer.schema = {
 };
 
 Farmer.fromPerson = function(person, token, secret, callback) {
-    Farmer.create({id: person.id,
+    var id = person.id;
+    if (id.substr(0, 5) == "acct:") {
+        id = id.substr(5);
+    }
+    Farmer.create({id: id,
                    name: person.displayName,
                    coins: 10,
                    plots: [{}],
