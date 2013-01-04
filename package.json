@@ -1,10 +1,15 @@
 {
     "name": "openfarmgame",
     "version": "0.0.1",
-    "private": true,
     "dependencies": {
       "express": "2.5.x",
        "utml": "0.2.x",
-       "underscore": "1.4.x"
+       "underscore": "1.4.x",
+       "webfinger": "0.1.x",
+       "databank": "0.15.x",
+       "underscore": "1.4.x",
+       "dialback-client": ">=0.1.1",
+       "oauth": "0.9.x",
+       "async": "0.1.x"
   }
 }

@@ -20,12 +20,20 @@ var fs = require("fs"),
     path = require("path"),
     _ = require("underscore"),
     express = require('express'),
+    DialbackClient = require("dialback-client"),
     routes = require('./routes'),
+    databank = require("databank"),
+    Databank = databank.Databank,
+    DatabankObject = databank.DatabankObject,
+    RequestToken = require("./models/requesttoken"),
+    Farmer = require("./models/farmer"),
+    Host = require("./models/host"),
     config,
     defaults = {
         port: 4000,
         address: "localhost",
-        hostname: "localhost"
+        hostname: "localhost",
+        driver: "disk"
     },
     app;
 
@@ -65,10 +73,66 @@ app.get('/', routes.index);
 app.get('/login', routes.login);
 app.post('/login', routes.handleLogin);
 app.get('/about', routes.about);
+app.get('/authorized/:hostname', routes.authorized);
 app.get('/farmer/:webfinger', routes.farmer);
 app.get('/plant/:webfinger/:plot', routes.plant);
 app.post('/plant/:webfinger/:plot', routes.handlePlant);
+app.get('/.well-known/host-meta.json', routes.hostmeta);
 
-app.listen(config.port, config.address, function() {
-  console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
+if (!config.params) {
+    if (config.driver == "disk") {
+        config.params = {dir: "/var/lib/openfarmgame/"};
+    } else {
+        config.params = {};
+    }
+}
+
+// Define the database schema
+
+if (!config.params.schema) {
+    config.params.schema = {};
+}
+
+_.extend(config.params.schema, DialbackClient.schema);
+
+_.each([RequestToken, Farmer, Host], function(Cls) {
+    config.params.schema[Cls.type] = Cls.schema;
+});
+
+var db = Databank.get(config.driver, config.params);
+
+db.connect({}, function(err) {
+
+    var client;
+
+    if (err) {
+        console.error(err);
+        return;
+    }
+
+    // Set global databank info
+
+    DatabankObject.bank = db;
+
+    // Create a dialback client
+
+    client = new DialbackClient({
+        hostname: config.hostname,
+        app: app,
+        bank: db,
+        userAgent: "OpenFarmGame/0.1.0"
+    });
+
+    // Configure this global object
+
+    Host.dialbackClient = client;
+    Host.localHostname  = config.hostname;
+
+    // Let Web stuff get to config
+
+    app.config = config;
+
+    app.listen(config.port, config.address, function() {
+        console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
+    });
 });
