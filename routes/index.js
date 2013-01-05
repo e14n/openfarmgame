@@ -130,6 +130,7 @@ exports.authorized = function(req, res, next) {
         if (err) {
             next(err);
         } else {
+            req.session.farmerID = farmer.id;
             res.redirect("/farmer/"+farmer.id, 303);
         }
     });
