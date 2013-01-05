@@ -35,7 +35,11 @@ exports.hostmeta = function(req, res) {
 };
 
 exports.index = function(req, res) {
-    res.render('index', { title: 'Open Farm Game' });
+    if (req.user) {
+        res.render('farmer', { title: 'Open Farm Game', farmer: req.user });
+    } else {
+        res.render('index', { title: 'Open Farm Game' });
+    }
 };
 
 exports.login = function(req, res) {
@@ -131,7 +135,7 @@ exports.authorized = function(req, res, next) {
             next(err);
         } else {
             req.session.farmerID = farmer.id;
-            res.redirect("/farmer/"+farmer.id, 303);
+            res.redirect("/");
         }
     });
 };
