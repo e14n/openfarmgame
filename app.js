@@ -151,7 +151,7 @@ db.connect({}, function(err) {
     };
 
     var userIsFarmer = function(req, res, next) {
-        if (req.params.webfinger && req.session.id == req.params.webfinger) {
+        if (req.params.webfinger && req.user.id == req.params.webfinger) {
             next();
         } else {
             next(new Error("Must be the same farmer"));
