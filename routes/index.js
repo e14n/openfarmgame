@@ -169,7 +169,8 @@ exports.handlePlant = function(req, res, next) {
     var plot = req.plot,
         cropIndex = parseInt(req.body.cropIndex, 10),
         crops = testCrops(),
-        crop;
+        crop,
+        now = Date.now();
 
     if (cropIndex < 0 || cropIndex >= crops.length) {
         next(new Error("Invalid crop"));
@@ -188,9 +189,12 @@ exports.handlePlant = function(req, res, next) {
     req.user.plots[plot] = {
         crop: {
             name: crop.name,
+            id: cropIndex,
             status: "New",
             needsWater: true,
-            ready: false
+            ready: false,
+            planted: now,
+            watered: 0
         }
     };
 
