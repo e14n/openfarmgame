@@ -1,0 +1,7 @@
+<p>Are you sure you want to tear up your <%- farmer.plots[plot].crop.name %>? You will get no money for it.</p>
+
+<form action="/tearup/<%- plot %>" method="post">
+  <input class="btn" type="submit" value="Tear Up" />
+  <a href="/" class="btn btn-primary">Cancel</a>
+</form>
+
