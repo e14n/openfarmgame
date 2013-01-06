@@ -6,7 +6,7 @@
     <p><%- plot.crop.status %></p>
     <p>
       <% if (plot.crop.needsWater) { %>
-      <a class="btn btn-primary">Water</a>
+      <a class="btn btn-primary" href="/water/<%- index %>">Water</a>
       <% } %>
       <% if (plot.crop.ready) { %>
       <a class="btn btn-primary">Harvest</a>

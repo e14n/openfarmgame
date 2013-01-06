@@ -183,6 +183,8 @@ db.connect({}, function(err) {
     app.post('/plant/:plot', userAuth, userRequired, reqPlot, routes.handlePlant);
     app.get('/tearup/:plot', userAuth, userRequired, reqPlot, routes.tearUp);
     app.post('/tearup/:plot', userAuth, userRequired, reqPlot, routes.handleTearUp);
+    app.get('/water/:plot', userAuth, userRequired, reqPlot, routes.water);
+    app.post('/water/:plot', userAuth, userRequired, reqPlot, routes.handleWater);
     app.get('/.well-known/host-meta.json', routes.hostmeta);
 
     // Create a dialback client

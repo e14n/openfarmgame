@@ -189,6 +189,43 @@ exports.handleTearUp = function(req, res, next) {
     });
 };
 
+exports.water = function(req, res, next) {
+
+    var plot = req.plot,
+        crops = testCrops();
+
+    res.render('water', { title: 'Water a crop', farmer: req.user, plot: plot });
+};
+
+exports.handleWater = function(req, res, next) {
+
+    var plot = req.plot;
+
+    if (req.user.coins < 1) {
+        next(new Error("Not enough coins to water something."));
+    }
+
+    req.user.coins = req.user.coins - 1;
+
+    req.user.plots[plot].crop.watered = Date.now();
+    req.user.plots[plot].crop.needsWater = false;
+
+    if (req.user.plots[plot].crop.status == "New") {
+        req.user.plots[plot].crop.status = "Growing";
+    } else if (req.user.plots[plot].crop.status == "Growing") {
+        req.user.plots[plot].crop.status = "Almost ready";
+    }
+    
+    req.user.save(function(err) {
+        if (err) {
+            next(err);
+        } else {
+            res.redirect("/");
+            req.user.waterActivity(plot, function(err) {});
+        }
+    });
+};
+
 exports.handlePlant = function(req, res, next) {
 
     var plot = req.plot,
