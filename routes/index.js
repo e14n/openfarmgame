@@ -158,29 +158,50 @@ exports.farmer = function(req, res, next) {
 };
 
 exports.plant = function(req, res, next) {
-    var id = req.params.webfinger,
-        plot = req.params.plot,
+    var plot = req.plot,
         crops = testCrops();
 
-    async.waterfall([
-        function(callback) {
-            Farmer.get(id, callback);
-        }
-    ], function(err, farmer) {
-        if (err) {
-            next(err);
-        } else {
-            res.render('plant', { title: 'Plant a new crop', farmer: farmer, plot: plot, crops: crops });
-        }
-    });
+    res.render('plant', { title: 'Plant a new crop', farmer: req.user, plot: plot, crops: crops });
 };
 
 exports.handlePlant = function(req, res, next) {
-    var id = req.body.webfinger,
-        plot = req.body.plot,
-        crops = testCrops();
 
-    res.redirect("/farmer/"+id, 303);
+    var plot = req.plot,
+        cropIndex = parseInt(req.body.cropIndex, 10),
+        crops = testCrops(),
+        crop;
+
+    if (cropIndex < 0 || cropIndex >= crops.length) {
+        next(new Error("Invalid crop"));
+        return;
+    }
+
+    crop = crops[cropIndex];
+
+    if (crop.cost > req.user.coins) {
+        next(new Error("Not enough coins."));
+        return;
+    }
+
+    req.user.coins -= crop.cost;
+
+    req.user.plots[plot] = {
+        crop: {
+            name: crop.name,
+            status: "New",
+            needsWater: true,
+            ready: false
+        }
+    };
+
+    req.user.save(function(err) {
+        if (err) {
+            next(err);
+        } else {
+            res.redirect("/");
+            req.user.plantActivity(plot, function(err) {});
+        }
+    });
 };
 
 var testCrops = function() {

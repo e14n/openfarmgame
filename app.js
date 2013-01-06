@@ -158,6 +158,19 @@ db.connect({}, function(err) {
         }
     };
 
+    var reqPlot = function(req, res, next) {
+        var plot = parseInt(req.params.plot, 10),
+            user = req.user;
+
+        if (plot < 0 || plot >= user.plots.length) {
+            next(new Error("Invalid plot: " + plot));
+            return;
+        }
+
+        req.plot = plot;
+        next();
+    };
+
     // Routes
 
     app.get('/', userAuth, userOptional, routes.index);
@@ -166,8 +179,8 @@ db.connect({}, function(err) {
     app.get('/about', userAuth, userOptional, routes.about);
     app.get('/authorized/:hostname', routes.authorized);
     app.get('/farmer/:webfinger', userAuth, userOptional, routes.farmer);
-    app.get('/plant/:webfinger/:plot', userAuth, userRequired, userIsFarmer, routes.plant);
-    app.post('/plant/:webfinger/:plot', userAuth, userRequired, userIsFarmer, routes.handlePlant);
+    app.get('/plant/:plot', userAuth, userRequired, reqPlot, routes.plant);
+    app.post('/plant/:plot', userAuth, userRequired, reqPlot, routes.handlePlant);
     app.get('/.well-known/host-meta.json', routes.hostmeta);
 
     // Create a dialback client

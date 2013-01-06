@@ -47,4 +47,20 @@ Farmer.fromPerson = function(person, token, secret, callback) {
                   callback);
 };
 
+Farmer.prototype.joinActivity = function(callback) {
+    callback(null);
+};
+
+Farmer.prototype.plantActivity = function(plotIndex, callback) {
+    callback(null);
+};
+
+Farmer.prototype.waterActivity = function(plotIndex, callback) {
+    callback(null);
+};
+
+Farmer.prototype.harvestActivity = function(crop, callback) {
+    callback(null);
+};
+
 module.exports = Farmer;

@@ -17,7 +17,7 @@
     <img src="/images/dirt.jpg" width="300" height="200" alt="Empty">
     <h3>(Empty)</h3>
     <p>This is an empty plot.</p>
-    <p><a class="btn btn-primary" href="/plant/<%- farmer.id %>/<%- index %>">Plant</a></p>
+    <p><a class="btn btn-primary" href="/plant/<%- index %>">Plant</a></p>
     <% } %>
   </div>
 </li>

@@ -3,5 +3,15 @@
     <img src="/images/<%- crop.name.toLowerCase() %>.jpg" width="300" height="200" alt="<%- crop.name %>">
     <h3><%- crop.name %></h3>
     <p>Cost: <%- crop.cost %> coins</p>
+    <p>
+      <form action="/plant/<%- plot %>" method="post">
+
+        <input type="hidden" name="cropIndex" value="<%- idx %>"/>
+        <input type="hidden" name="plot" value="<%- plot %>" />
+
+        <input class="btn" type="submit" value="Plant" <% if (farmer.coins < crop.cost) { %>disabled="disabled"<% } %> />
+
+      </form>
+    </p>
   </div>
 </li>

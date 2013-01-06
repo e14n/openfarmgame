@@ -1,21 +1,11 @@
 <h1>Plant a crop</h1>
 
-<form action="/plant/<%- farmer.id %>/<%- plot %>" method="post">
-  
-  <input type="hidden" name="crop" />
-  <input type="hidden" name="webfinger" value="<%- farmer.id %>" />
-  <input type="hidden" name="plot" value="<%- plot %>" />
+<ul class="thumbnails">
 
-  <ul class="thumbnails">
+  <% _.each(crops, function(crop, idx) { %>
 
-  <% _.each(crops, function(crop) { %>
-
-  <%= partial("crop", {crop: crop}) %>
+  <%= partial("crop", {crop: crop, idx: idx}) %>
 
   <% }); %>
 
-  </ul>
-
-  <input type="submit" value="Plant"></input>
-
-</form>
+</ul>
