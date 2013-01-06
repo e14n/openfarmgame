@@ -11,7 +11,7 @@
       <% if (plot.crop.ready) { %>
       <a class="btn btn-primary">Harvest</a>
       <% } %>
-      <a class="btn">Tear up</a>
+      <a class="btn" href="/tearup/<%- index %>">Tear up</a>
     </p>
     <% } else { %>
     <img src="/images/dirt.jpg" width="300" height="200" alt="Empty">

@@ -164,6 +164,31 @@ exports.plant = function(req, res, next) {
     res.render('plant', { title: 'Plant a new crop', farmer: req.user, plot: plot, crops: crops });
 };
 
+exports.tearUp = function(req, res, next) {
+
+    var plot = req.plot,
+        crops = testCrops();
+
+    res.render('tearup', { title: 'Tear up a crop', farmer: req.user, plot: plot });
+};
+
+exports.handleTearUp = function(req, res, next) {
+
+    var plot = req.plot,
+        crop = req.user.plots[plot].crop;
+
+    req.user.plots[plot] = {};
+    
+    req.user.save(function(err) {
+        if (err) {
+            next(err);
+        } else {
+            res.redirect("/");
+            req.user.tearUpActivity(crop, function(err) {});
+        }
+    });
+};
+
 exports.handlePlant = function(req, res, next) {
 
     var plot = req.plot,

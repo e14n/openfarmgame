@@ -55,6 +55,10 @@ Farmer.prototype.plantActivity = function(plotIndex, callback) {
     callback(null);
 };
 
+Farmer.prototype.tearUpActivity = function(crop, callback) {
+    callback(null);
+};
+
 Farmer.prototype.waterActivity = function(plotIndex, callback) {
     callback(null);
 };
