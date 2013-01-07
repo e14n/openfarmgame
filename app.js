@@ -29,12 +29,15 @@ var fs = require("fs"),
     RequestToken = require("./models/requesttoken"),
     Farmer = require("./models/farmer"),
     Host = require("./models/host"),
+    OpenFarmGame = require("./models/openfarmgame"),
     config,
     defaults = {
         port: 4000,
         address: "localhost",
         hostname: "localhost",
-        driver: "disk"
+        driver: "disk",
+        name: "Open Farm Game",
+        description: "The social game that brings the excitement of subsistence farming to the social internet."
     };
 
 if (fs.existsSync("/etc/openfarmgame.json")) {
@@ -199,7 +202,12 @@ db.connect({}, function(err) {
     // Configure this global object
 
     Host.dialbackClient = client;
-    Host.localHostname  = config.hostname;
+
+    // Configure the service object
+
+    OpenFarmGame.name        = config.name;
+    OpenFarmGame.description = config.description;
+    OpenFarmGame.hostname    = config.hostname;
 
     // Let Web stuff get to config
 

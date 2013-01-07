@@ -18,7 +18,8 @@
 
 var DatabankObject = require("databank").DatabankObject;
 
-var Farmer = DatabankObject.subClass("farmer");
+var Farmer = DatabankObject.subClass("farmer"),
+    OpenFarmGame = require("./openfarmgame");
 
 Farmer.schema = {
     pkey: "id",
@@ -32,10 +33,27 @@ Farmer.schema = {
 };
 
 Farmer.fromPerson = function(person, token, secret, callback) {
+
     var id = person.id;
+
     if (id.substr(0, 5) == "acct:") {
         id = id.substr(5);
     }
+
+    if (!person.links ||
+        !person.links["activity-inbox"] ||
+        !person.links["activity-inbox"].href) {
+        callback(new Error("No activity inbox."));
+        return;
+    }
+
+    if (!person.links ||
+        !person.links["activity-outbox"] ||
+        !person.links["activity-outbox"].href) {
+        callback(new Error("No activity inbox."));
+        return;
+    }
+
     Farmer.create({id: id,
                    name: person.displayName,
                    coins: 10,
@@ -43,12 +61,14 @@ Farmer.fromPerson = function(person, token, secret, callback) {
                    token: token,
                    secret: secret,
                    created: Date.now(),
-                   updated: Date.now()},
+                   updated: Date.now(),
+                   inbox: person.links["activity-inbox"].href,
+                   outbox: person.links["activity-outbox"].href},
                   callback);
 };
 
 Farmer.prototype.joinActivity = function(callback) {
-    callback(null);
+    var farmer = this;
 };
 
 Farmer.prototype.plantActivity = function(plotIndex, callback) {

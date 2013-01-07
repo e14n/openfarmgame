@@ -22,6 +22,7 @@ var _ = require("underscore"),
     qs = require("querystring"),
     OAuth = require("oauth").OAuth,
     DatabankObject = require("databank").DatabankObject,
+    OpenFarmGame = require("./openfarmgame"),
     RequestToken = require("./requesttoken");
 
 var Host = DatabankObject.subClass("host");
@@ -99,10 +100,10 @@ Host.getCredentials = function(endpoint, callback) {
             var body = qs.stringify({type: "client_associate",
                                      application_type: "web",
                                      application_name: "Open Farm Game",
-                                     redirect_uris: "http://"+Host.localHostname+"/authorized"});
+                                     redirect_uris: OpenFarmGame.url("/authorized")});
 
             Host.dialbackClient.post(endpoint,
-                                     Host.localHostname,
+                                     OpenFarmGame.hostname,
                                      body,
                                      "application/x-www-form-urlencoded",
                                      callback);
@@ -199,7 +200,7 @@ Host.prototype.getOAuth = function() {
                      host.client_id,
                      host.client_secret,
                      "1.0",
-                     "http://" + Host.localHostname + "/authorized/"+host.hostname,
+                     OpenFarmGame.url("/authorized/"+host.hostname),
                      "HMAC-SHA1",
                      null, // nonce size; use default
                      {"User-Agent": "openfarmgame.com/0.1.0"});
