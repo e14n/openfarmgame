@@ -19,6 +19,7 @@
 var wf = require("webfinger"),
     async = require("async"),
     _ = require("underscore"),
+    uuid = require("node-uuid"),
     Farmer = require("../models/farmer"),
     Host = require("../models/host"),
     RequestToken = require("../models/requesttoken");
@@ -67,7 +68,11 @@ exports.handleLogin = function(req, res, next) {
         }
     ], function(err, rt) {
         if (err) {
-            next(new Error(err.data));
+            if (err instanceof Error) {
+                next(err);
+            } else if (err.data) {
+                next(new Error(err.data));
+            }
         } else {
             res.redirect(host.authorizeURL(rt));
         }
@@ -84,7 +89,8 @@ exports.authorized = function(req, res, next) {
         access_token,
         token_secret,
         id,
-        object;
+        object,
+        newFarmer = false;
 
     async.waterfall([
         function(callback) {
@@ -122,6 +128,7 @@ exports.authorized = function(req, res, next) {
             }
             Farmer.get(id, function(err, farmer) {
                 if (err && err.name === "NoSuchThingError") {
+                    newFarmer = true;
                     Farmer.fromPerson(object, access_token, token_secret, callback);
                 } else if (err) {
                     callback(err, null);
@@ -136,6 +143,11 @@ exports.authorized = function(req, res, next) {
         } else {
             req.session.farmerID = farmer.id;
             res.redirect("/");
+            if (newFarmer) {
+                process.nextTick(function() {
+                    farmer.joinActivity(function(err) {});
+                });
+            }
         }
     });
 };
@@ -155,13 +167,6 @@ exports.farmer = function(req, res, next) {
             res.render('farmer', { title: 'Farmer ' + farmer.name, farmer: farmer });
         }
     });
-};
-
-exports.plant = function(req, res, next) {
-    var plot = req.plot,
-        crops = testCrops();
-
-    res.render('plant', { title: 'Plant a new crop', farmer: req.user, plot: plot, crops: crops });
 };
 
 exports.tearUp = function(req, res, next) {
@@ -226,6 +231,13 @@ exports.handleWater = function(req, res, next) {
     });
 };
 
+exports.plant = function(req, res, next) {
+    var plot = req.plot,
+        crops = testCrops();
+
+    res.render('plant', { title: 'Plant a new crop', farmer: req.user, plot: plot, crops: crops });
+};
+
 exports.handlePlant = function(req, res, next) {
 
     var plot = req.plot,
@@ -251,7 +263,7 @@ exports.handlePlant = function(req, res, next) {
     req.user.plots[plot] = {
         crop: {
             name: crop.name,
-            id: cropIndex,
+            id: "urn:uuid:"+uuid.v4(),
             status: "New",
             needsWater: true,
             ready: false,

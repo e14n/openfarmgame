@@ -16,10 +16,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var DatabankObject = require("databank").DatabankObject;
+var _ = require("underscore"),
+    async = require("async"),
+    DatabankObject = require("databank").DatabankObject,
+    OpenFarmGame = require("./openfarmgame"),
+    Host = require("./host");
 
-var Farmer = DatabankObject.subClass("farmer"),
-    OpenFarmGame = require("./openfarmgame");
+var Farmer = DatabankObject.subClass("farmer");
 
 Farmer.schema = {
     pkey: "id",
@@ -28,6 +31,8 @@ Farmer.schema = {
              "plots",
              "token",
              "secret",
+             "inbox",
+             "outbox",
              "created",
              "updated"]
 };
@@ -54,8 +59,15 @@ Farmer.fromPerson = function(person, token, secret, callback) {
         return;
     }
 
+    if (!person.followers ||
+        !person.followers.url) {
+        callback(new Error("No followers."));
+        return;
+    }
+
     Farmer.create({id: id,
                    name: person.displayName,
+                   homepage: person.url,
                    coins: 10,
                    plots: [{}],
                    token: token,
@@ -63,28 +75,111 @@ Farmer.fromPerson = function(person, token, secret, callback) {
                    created: Date.now(),
                    updated: Date.now(),
                    inbox: person.links["activity-inbox"].href,
-                   outbox: person.links["activity-outbox"].href},
+                   outbox: person.links["activity-outbox"].href,
+                   followers: person.followers.url},
                   callback);
 };
 
 Farmer.prototype.joinActivity = function(callback) {
-    var farmer = this;
+    var farmer = this,
+        game = OpenFarmGame.asService(),
+        content = "<a href='" + farmer.homepage + "'>" + farmer.name + "</a> " + 
+            " joined " +
+            "<a href='" + game.url + "'>" + game.displayName + "</a>";
+
+    farmer.postActivity({verb: "join",
+                         content: content,
+                         object: game},
+                        callback);
 };
 
 Farmer.prototype.plantActivity = function(plotIndex, callback) {
-    callback(null);
+    var farmer = this,
+        crop = farmer.getCrop(plotIndex);
+
+    farmer.postActivity({verb: "http://openfarmgame.com/schema/verb/plant",
+                         content: farmer.name + " planted " + crop.name,
+                         object: Farmer.cropAsObject(crop)},
+                         callback);
 };
 
 Farmer.prototype.tearUpActivity = function(crop, callback) {
-    callback(null);
+    var farmer = this;
+    farmer.postActivity({verb: "http://openfarmgame.com/schema/verb/tear-up",
+                         content: farmer.name + " tore up " + crop.name,
+                         object: Farmer.cropAsObject(crop)},
+                         callback);
 };
 
 Farmer.prototype.waterActivity = function(plotIndex, callback) {
-    callback(null);
+    var farmer = this,
+        crop = farmer.getCrop(plotIndex);
+
+    farmer.postActivity({verb: "http://openfarmgame.com/schema/verb/water",
+                         content: farmer.name + " watered " + crop.name,
+                         object: Farmer.cropAsObject(crop)},
+                         callback);
 };
 
 Farmer.prototype.harvestActivity = function(crop, callback) {
-    callback(null);
+    var farmer = this;
+    farmer.postActivity({verb: "http://openfarmgame.com/schema/verb/harvest",
+                         content: farmer.name + " harvested " + crop.name,
+                         object: Farmer.cropAsObject(crop)},
+                         callback);
+};
+
+Farmer.prototype.getCrop = function(idx) {
+    var farmer = this;
+    if (idx >= 0 && idx < farmer.plots.length) {
+        return farmer.plots[idx].crop;
+    } else {
+        return null;
+    }
+};
+
+Farmer.cropAsObject = function(crop) {
+    return {
+        id: crop.id,
+        objectType: "http://openfarmgame.com/schema/object-type/crop",
+        displayName: crop.name
+    };
+};
+
+Farmer.prototype.postActivity = function(act, callback) {
+
+    var farmer = this,
+        parts = farmer.id.split("@"),
+        hostname = parts[1];
+
+    async.waterfall([
+        function(callback) {
+            Host.get(hostname, callback);
+        },
+        function(host, callback) {
+            var oa = host.getOAuth(),
+                json = JSON.stringify(act);
+
+            oa.post(farmer.outbox, farmer.token, farmer.secret, json, "application/json", callback);
+        },
+        function(data, response, callback) {
+            var posted;
+            if (response.statusCode >= 400 && response.statusCode < 600) {
+                callback(new Error("Error " + response.StatusCode + ": " + data));
+            } else if (!response.headers || 
+                       !response.headers["Content-Type"] || 
+                       response.headers["content-type"].substr(0, "application/json".length) != "application/json") {
+                callback(new Error("Not application/json"));
+            } else {
+                try {
+                    posted = JSON.parse(data);
+                    callback(null, posted);
+                } catch (e) {
+                    callback(e, null);
+                }
+            }
+        }
+    ], callback);
 };
 
 module.exports = Farmer;

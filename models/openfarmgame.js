@@ -37,7 +37,7 @@ var OpenFarmGame = {
 
         return {
             objectType: "service", // XXX: "game"?
-            name: game.name,
+            displayName: game.name,
             id: game.url("/"),
             url: game.url("/"),
             description: game.description
