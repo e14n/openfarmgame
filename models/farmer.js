@@ -76,7 +76,7 @@ Farmer.fromPerson = function(person, token, secret, callback) {
     Farmer.create({id: id,
                    name: person.displayName,
                    homepage: person.url,
-                   coins: 60,
+                   coins: 25,
                    plots: [{id: "urn:uuid:"+uuid.v4()}],
                    token: token,
                    secret: secret,
