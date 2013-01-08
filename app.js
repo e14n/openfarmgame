@@ -30,6 +30,7 @@ var fs = require("fs"),
     Farmer = require("./models/farmer"),
     Host = require("./models/host"),
     OpenFarmGame = require("./models/openfarmgame"),
+    Notifier = require("./lib/notifier"),
     config,
     defaults = {
         port: 4000,
@@ -218,6 +219,25 @@ db.connect({}, function(err) {
     // Let Web stuff get to config
 
     app.config = config;
+
+    // For sending notifications
+
+    var notifier = new Notifier();
+
+    app.notify = function(farmer, title, template, data, callback) {
+        notifier.notify(farmer, title, template, data, callback);
+    };
+
+    // For handling errors
+    // XXX: switch to bunyan
+
+    app.log = function(obj) {
+        if (obj instanceof Error) {
+            console.error(obj);
+        } else {
+            console.log(obj);
+        }
+    };
 
     // Start the app
 

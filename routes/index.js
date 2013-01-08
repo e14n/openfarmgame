@@ -22,7 +22,8 @@ var wf = require("webfinger"),
     uuid = require("node-uuid"),
     Farmer = require("../models/farmer"),
     Host = require("../models/host"),
-    RequestToken = require("../models/requesttoken");
+    RequestToken = require("../models/requesttoken"),
+    OpenFarmGame = require("../models/openfarmgame");
 
 exports.hostmeta = function(req, res) {
     res.json({
@@ -54,8 +55,7 @@ exports.about = function(req, res) {
 exports.handleLogin = function(req, res, next) {
 
     var id = req.body.webfinger,
-        parts = id.split("@"),
-        hostname = parts[1],
+        hostname = Farmer.getHostname(id),
         host;
     
     async.waterfall([
@@ -145,7 +145,22 @@ exports.authorized = function(req, res, next) {
             res.redirect("/");
             if (newFarmer) {
                 process.nextTick(function() {
-                    farmer.joinActivity(function(err) {});
+                    async.parallel([
+                        function(callback) {
+                            farmer.joinActivity(callback);
+                        },
+                        function(callback) {
+                            req.app.notify(farmer,
+                                           "Welcome to " + OpenFarmGame.name,
+                                           "welcome",
+                                           {farmer: farmer},
+                                           callback);
+                        }
+                    ], function(err, results) {
+                        if (err) {
+                            req.app.log(err);
+                        }
+                    });
                 });
             }
         }

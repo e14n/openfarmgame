@@ -211,15 +211,28 @@ Farmer.plotAsObject = function(plot) {
     };
 };
 
-Farmer.prototype.postActivity = function(act, callback) {
+Farmer.getHostname = function(id) {
+    var parts = id.split("@"),
+        hostname = parts[1].toLowerCase();
+
+    return hostname;
+};
+
+Farmer.prototype.getHost = function(callback) {
 
     var farmer = this,
-        parts = farmer.id.split("@"),
-        hostname = parts[1];
+        hostname = Farmer.getHostname(farmer.id);
+
+    Host.get(hostname, callback);
+};
+
+Farmer.prototype.postActivity = function(act, callback) {
+
+    var farmer = this;
 
     async.waterfall([
         function(callback) {
-            Host.get(hostname, callback);
+            farmer.getHost(callback);
         },
         function(host, callback) {
             var oa = host.getOAuth(),
@@ -233,7 +246,7 @@ Farmer.prototype.postActivity = function(act, callback) {
                 callback(new Error("Error " + response.StatusCode + ": " + data));
             } else if (!response.headers || 
                        !response.headers["Content-Type"] || 
-                       response.headers["content-type"].substr(0, "application/json".length) != "application/json") {
+                       response.headers["Content-Type"].substr(0, "application/json".length) != "application/json") {
                 callback(new Error("Not application/json"));
             } else {
                 try {
