@@ -64,9 +64,13 @@ if (!config.params.schema) {
 
 _.extend(config.params.schema, DialbackClient.schema);
 
-_.each([RequestToken, Farmer, Host], function(Cls) {
+_.each([RequestToken, Host], function(Cls) {
     config.params.schema[Cls.type] = Cls.schema;
 });
+
+// Farmer has a global list
+
+_.extend(config.params.schema, Farmer.schema);
 
 var db = Databank.get(config.driver, config.params);
 

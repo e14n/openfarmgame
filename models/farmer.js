@@ -25,21 +25,28 @@ var _ = require("underscore"),
 var Farmer = DatabankObject.subClass("farmer");
 
 Farmer.schema = {
-    pkey: "id",
-    fields: ["name",
-             "coins",
-             "plots",
-             "token",
-             "secret",
-             "inbox",
-             "outbox",
-             "created",
-             "updated"]
+    "farmer": {
+        pkey: "id",
+        fields: ["name",
+                 "coins",
+                 "plots",
+                 "token",
+                 "secret",
+                 "inbox",
+                 "outbox",
+                 "created",
+                 "updated"]
+    },
+    "farmerlist": {
+        pkey: "id"
+    }
 };
 
 Farmer.fromPerson = function(person, token, secret, callback) {
 
-    var id = person.id;
+    var id = person.id,
+        farmer,
+        bank = Farmer.bank();
 
     if (id.substr(0, 5) == "acct:") {
         id = id.substr(5);
@@ -78,6 +85,36 @@ Farmer.fromPerson = function(person, token, secret, callback) {
                    outbox: person.links["activity-outbox"].href,
                    followers: person.followers.url},
                   callback);
+};
+
+// Keep a list of existing farmers so we can do periodic updates
+
+Farmer.prototype.afterCreate = function(callback) {
+    var farmer = this,
+        bank = Farmer.bank();
+
+    bank.append("farmerlist", 0, farmer.id, function(err, list) {
+        if (err) {
+            callback(err);
+        } else {
+            callback(null);
+        }
+    });
+};
+
+// Deleted farmers come off the list
+
+Farmer.prototype.afterDel = function(callback) {
+    var farmer = this,
+        bank = Farmer.bank();
+
+    bank.remove("farmerlist", 0, farmer.id, function(err, list) {
+        if (err) {
+            callback(err);
+        } else {
+            callback(null);
+        }
+    });
 };
 
 Farmer.prototype.joinActivity = function(callback) {
