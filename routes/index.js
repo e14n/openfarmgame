@@ -287,7 +287,7 @@ var testCrops = function() {
         {
             name: "Corn",
             cost: 5,
-            price: 18
+            price: 17
         },
         {
             name: "Tomatoes",
