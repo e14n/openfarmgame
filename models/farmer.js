@@ -18,6 +18,7 @@
 
 var _ = require("underscore"),
     async = require("async"),
+    uuid = require("node-uuid"),
     DatabankObject = require("databank").DatabankObject,
     OpenFarmGame = require("./openfarmgame"),
     Host = require("./host");
@@ -75,8 +76,8 @@ Farmer.fromPerson = function(person, token, secret, callback) {
     Farmer.create({id: id,
                    name: person.displayName,
                    homepage: person.url,
-                   coins: 10,
-                   plots: [{}],
+                   coins: 60,
+                   plots: [{id: "urn:uuid:"+uuid.v4()}],
                    token: token,
                    secret: secret,
                    created: Date.now(),
@@ -130,6 +131,16 @@ Farmer.prototype.joinActivity = function(callback) {
                         callback);
 };
 
+Farmer.prototype.buyActivity = function(plotIndex, callback) {
+    var farmer = this,
+        plot = farmer.getPlot(plotIndex);
+
+    farmer.postActivity({verb: "purchase",
+                         content: farmer.name + " bought a new plot.",
+                         object: Farmer.plotAsObject(plot)},
+                         callback);
+};
+
 Farmer.prototype.plantActivity = function(plotIndex, callback) {
     var farmer = this,
         crop = farmer.getCrop(plotIndex);
@@ -175,11 +186,28 @@ Farmer.prototype.getCrop = function(idx) {
     }
 };
 
+Farmer.prototype.getPlot = function(idx) {
+    var farmer = this;
+    if (idx >= 0 && idx < farmer.plots.length) {
+        return farmer.plots[idx];
+    } else {
+        return null;
+    }
+};
+
 Farmer.cropAsObject = function(crop) {
     return {
         id: crop.id,
         objectType: "http://openfarmgame.com/schema/object-type/crop",
         displayName: crop.name
+    };
+};
+
+Farmer.plotAsObject = function(plot) {
+    return {
+        id: plot.id,
+        objectType: "http://openfarmgame.com/schema/object-type/plot",
+        displayName: "a plot of land"
     };
 };
 

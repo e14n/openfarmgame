@@ -9,3 +9,7 @@
   <%= partial("plot", {plot: plot, index: index}) %>
   <% }); %>
 </ul>
+
+<% if (farmer.coins >= 50) { %>
+<p><a class="btn btn-primary" href="/buy-plot">Buy a new plot</a></p>
+<% } %>

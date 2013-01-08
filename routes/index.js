@@ -182,7 +182,7 @@ exports.handleTearUp = function(req, res, next) {
     var plot = req.plot,
         crop = req.user.plots[plot].crop;
 
-    req.user.plots[plot] = {};
+    delete req.user.plots[plot].crop;
     
     req.user.save(function(err) {
         if (err) {
@@ -260,16 +260,14 @@ exports.handlePlant = function(req, res, next) {
 
     req.user.coins -= crop.cost;
 
-    req.user.plots[plot] = {
-        crop: {
-            name: crop.name,
-            id: "urn:uuid:"+uuid.v4(),
-            status: "New",
-            needsWater: true,
-            ready: false,
-            planted: now,
-            watered: 0
-        }
+    req.user.plots[plot].crop = {
+        name: crop.name,
+        id: "urn:uuid:"+uuid.v4(),
+        status: "New",
+        needsWater: true,
+        ready: false,
+        planted: now,
+        watered: 0
     };
 
     req.user.save(function(err) {
@@ -278,6 +276,36 @@ exports.handlePlant = function(req, res, next) {
         } else {
             res.redirect("/");
             req.user.plantActivity(plot, function(err) {});
+        }
+    });
+};
+
+exports.buyPlot = function(req, res, next) {
+
+    res.render('buy-plot', { title: 'Buy a plot', farmer: req.user });
+};
+
+exports.handleBuyPlot = function(req, res, next) {
+
+    var plot;
+
+    if (req.user.coins < 50) {
+        next(new Error("Not enough coins to buy a plot."));
+        return;
+    }
+
+    req.user.coins = req.user.coins - 50;
+
+    req.user.plots.push({id: "urn:uuid:"+uuid.v4()});
+
+    plot = req.user.plots.length - 1;
+
+    req.user.save(function(err) {
+        if (err) {
+            next(err);
+        } else {
+            res.redirect("/");
+            req.user.buyActivity(plot, function(err) {});
         }
     });
 };

@@ -1,0 +1,7 @@
+<p>A new plot will cost 50 coins.</p>
+
+<form action="/buy-plot" method="post">
+  <input class="btn" type="submit" value="Buy" />
+  <a href="/" class="btn btn-primary">Cancel</a>
+</form>
+

@@ -192,6 +192,8 @@ db.connect({}, function(err) {
     app.post('/tearup/:plot', userAuth, userRequired, reqPlot, routes.handleTearUp);
     app.get('/water/:plot', userAuth, userRequired, reqPlot, routes.water);
     app.post('/water/:plot', userAuth, userRequired, reqPlot, routes.handleWater);
+    app.get('/buy-plot', userAuth, userRequired, routes.buyPlot);
+    app.post('/buy-plot', userAuth, userRequired, routes.handleBuyPlot);
     app.get('/.well-known/host-meta.json', routes.hostmeta);
 
     // Create a dialback client
