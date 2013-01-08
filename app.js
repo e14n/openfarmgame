@@ -184,6 +184,7 @@ db.connect({}, function(err) {
     app.get('/', userAuth, userOptional, routes.index);
     app.get('/login', userAuth, noUser, routes.login);
     app.post('/login', userAuth, noUser, routes.handleLogin);
+    app.post('/logout', userAuth, userRequired, routes.handleLogout);
     app.get('/about', userAuth, userOptional, routes.about);
     app.get('/authorized/:hostname', routes.authorized);
     app.get('/farmer/:webfinger', userAuth, userOptional, routes.farmer);

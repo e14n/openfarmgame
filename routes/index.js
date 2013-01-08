@@ -79,6 +79,14 @@ exports.handleLogin = function(req, res, next) {
     });
 };
 
+exports.handleLogout = function(req, res) {
+
+    delete req.session.farmerID;
+    delete req.user;
+
+    res.redirect("/", 303);
+};
+
 exports.authorized = function(req, res, next) {
 
     var hostname = req.params.hostname,
