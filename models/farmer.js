@@ -245,8 +245,8 @@ Farmer.prototype.postActivity = function(act, callback) {
             if (response.statusCode >= 400 && response.statusCode < 600) {
                 callback(new Error("Error " + response.StatusCode + ": " + data));
             } else if (!response.headers || 
-                       !response.headers["Content-Type"] || 
-                       response.headers["Content-Type"].substr(0, "application/json".length) != "application/json") {
+                       !response.headers["content-type"] || 
+                       response.headers["content-type"].substr(0, "application/json".length) != "application/json") {
                 callback(new Error("Not application/json"));
             } else {
                 try {
