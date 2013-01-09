@@ -204,8 +204,6 @@ exports.handleTearUp = function(req, res, next) {
 
     var plot = req.plot,
         crop = req.user.plots[plot].crop;
-
-    delete req.user.plots[plot].crop;
     
     req.user.save(function(err) {
         if (err) {

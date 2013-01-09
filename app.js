@@ -29,6 +29,9 @@ var fs = require("fs"),
     RequestToken = require("./models/requesttoken"),
     Farmer = require("./models/farmer"),
     Host = require("./models/host"),
+    Plot = require("./models/plot"),
+    Crop = require("./models/crop"),
+    CropType = require("./models/croptype"),
     OpenFarmGame = require("./models/openfarmgame"),
     Notifier = require("./lib/notifier"),
     config,
@@ -65,7 +68,7 @@ if (!config.params.schema) {
 
 _.extend(config.params.schema, DialbackClient.schema);
 
-_.each([RequestToken, Host], function(Cls) {
+_.each([RequestToken, Host, Plot, Crop, CropType], function(Cls) {
     config.params.schema[Cls.type] = Cls.schema;
 });
 
@@ -167,6 +170,7 @@ db.connect({}, function(err) {
     };
 
     var reqPlot = function(req, res, next) {
+
         var plot = parseInt(req.params.plot, 10),
             user = req.user;
 
@@ -175,7 +179,8 @@ db.connect({}, function(err) {
             return;
         }
 
-        req.plot = plot;
+        req.plot = user.plots[plot];
+
         next();
     };
 

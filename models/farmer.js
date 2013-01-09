@@ -21,7 +21,8 @@ var _ = require("underscore"),
     uuid = require("node-uuid"),
     DatabankObject = require("databank").DatabankObject,
     OpenFarmGame = require("./openfarmgame"),
-    Host = require("./host");
+    Host = require("./host"),
+    Plot = require("./plot");
 
 var Farmer = DatabankObject.subClass("farmer");
 
@@ -73,19 +74,26 @@ Farmer.fromPerson = function(person, token, secret, callback) {
         return;
     }
 
-    Farmer.create({id: id,
-                   name: person.displayName,
-                   homepage: person.url,
-                   coins: 25,
-                   plots: [{id: "urn:uuid:"+uuid.v4()}],
-                   token: token,
-                   secret: secret,
-                   created: Date.now(),
-                   updated: Date.now(),
-                   inbox: person.links["activity-inbox"].href,
-                   outbox: person.links["activity-outbox"].href,
-                   followers: person.followers.url},
-                  callback);
+    async.waterfall([
+        function(callback) {
+            Plot.create({owner: id}, callback);
+        },
+        function(plot, callback) {
+            Farmer.create({id: id,
+                           name: person.displayName,
+                           homepage: person.url,
+                           coins: 25,
+                           plots: [plot.id],
+                           token: token,
+                           secret: secret,
+                           created: Date.now(),
+                           updated: Date.now(),
+                           inbox: person.links["activity-inbox"].href,
+                           outbox: person.links["activity-outbox"].href,
+                           followers: person.followers.url},
+                          callback);
+        }
+    ], callback);
 };
 
 // Keep a list of existing farmers so we can do periodic updates
