@@ -398,13 +398,17 @@ exports.handleBuyPlot = function(req, res, next) {
         return;
     }
 
-    req.user.coins = req.user.coins - 50;
-
-    req.user.plots.push({id: "urn:uuid:"+uuid.v4()});
-
-    plot = req.user.plots.length - 1;
-
-    req.user.save(function(err) {
+    async.waterfall([
+        function(callback) {
+            Plot.create({owner: req.user.id}, callback);
+        },
+        function(results, callback) {
+            plot = results;
+            req.user.coins -= 50;
+            req.user.plots.push(plot.uuid);
+            req.user.save(callback);
+        }
+    ], function(err, saved) {
         if (err) {
             next(err);
         } else {
@@ -413,4 +417,3 @@ exports.handleBuyPlot = function(req, res, next) {
         }
     });
 };
-
