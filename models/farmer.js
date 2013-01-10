@@ -114,10 +114,22 @@ Farmer.prototype.afterCreate = function(callback) {
 // Deleted farmers come off the list
 
 Farmer.prototype.afterDel = function(callback) {
-    var farmer = this,
-        bank = Farmer.bank();
+    var farmer = this;
 
-    bank.remove("farmerlist", 0, farmer.id, function(err, list) {
+    async.parallel([
+        function(callback) {
+            var bank = Farmer.bank();
+            bank.remove("farmerlist", 0, farmer.id, callback);
+        },
+        function(callback) {
+            var bank = Plot.bank();
+            async.forEach(farmer.plots,
+                          function(plotID, callback) {
+                              bank.del("plot", plotID, callback);
+                          },
+                          callback);
+        }
+    ], function(err, results) {
         if (err) {
             callback(err);
         } else {
