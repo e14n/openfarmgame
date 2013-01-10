@@ -66,4 +66,15 @@ Crop.prototype.asObject = function() {
     };
 };
 
+// States
+
+Crop.NEW = 0;
+Crop.GROWING = 1;
+Crop.NEEDS_WATER = 2;
+Crop.REALLY_NEEDS_WATER = 3;
+Crop.RIPE = 4;
+Crop.OVERRIPE = 5;
+Crop.DEAD = 6;
+Crop.HARVESTED = 7;
+
 module.exports = Crop;
