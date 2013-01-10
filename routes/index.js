@@ -237,15 +237,33 @@ exports.tearUp = function(req, res, next) {
 
     var plot = req.plot;
 
-    res.render('tearup', { title: 'Tear up a crop', farmer: req.user, plot: plot });
+    Crop.get(plot.crop, function(err, crop) {
+        if (err) {
+            next(err);
+        } else {
+            res.render('tearup', { title: 'Tear up a crop', farmer: req.user, plot: plot, crop: crop });
+        }
+    });
 };
 
 exports.handleTearUp = function(req, res, next) {
 
     var plot = req.plot,
-        crop = req.user.plots[plot].crop;
-    
-    req.user.save(function(err) {
+        crop;
+
+    async.waterfall([
+        function(callback) {
+            Crop.get(plot.crop, callback);
+        },
+        function(results, callback) {
+            crop = results;
+            plot.crop = null;
+            plot.save(callback);
+        },
+        function(saved, callback) {
+            crop.del(callback);
+        }
+    ], function(err) {
         if (err) {
             next(err);
         } else {
@@ -304,6 +322,7 @@ exports.handlePlant = function(req, res, next) {
 
     var plot = req.plot,
         slug = req.body.type,
+        type,
         crop,
         now = Date.now();
 
@@ -311,7 +330,10 @@ exports.handlePlant = function(req, res, next) {
         function(callback) {
             CropType.get(slug, callback);
         },
-        function(type, callback) {
+        function(results, callback) {
+
+            type = results;
+
             if (type.cost > req.user.coins) {
                 callback(new Error("Not enough coins"), null);
                 return;
@@ -319,10 +341,15 @@ exports.handlePlant = function(req, res, next) {
 
             req.user.coins -= type.cost;
 
+            req.user.save(callback);
+        },
+        function(saved, callback) {
             Crop.create({type: type.slug,
                          name: type.name,
                          status: "New",
                          state: 0,
+                         needsWater: true,
+                         ready: false,
                          planted: now},
                         callback);
         },
