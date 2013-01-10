@@ -68,13 +68,14 @@ if (!config.params.schema) {
 
 _.extend(config.params.schema, DialbackClient.schema);
 
-_.each([RequestToken, Host, Plot, Crop, CropType], function(Cls) {
+_.each([RequestToken, Host, Plot, Crop], function(Cls) {
     config.params.schema[Cls.type] = Cls.schema;
 });
 
-// Farmer has a global list
+// Farmer and CropType have global lists
 
 _.extend(config.params.schema, Farmer.schema);
+_.extend(config.params.schema, CropType.schema);
 
 var db = Databank.get(config.driver, config.params);
 

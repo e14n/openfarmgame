@@ -16,17 +16,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var DatabankObject = require("databank").DatabankObject;
+var _ = require("underscore"),
+    async = require("async"),
+    DatabankObject = require("databank").DatabankObject;
 
 var CropType = DatabankObject.subClass("croptype");
 
 CropType.schema = {
-    pkey: "slug",
-    fields: ["name",
-             "cost",
-             "price",
-             "created",
-             "updated"]
+    "croptype": {
+        pkey: "slug",
+        fields: ["name",
+                 "cost",
+                 "price",
+                 "created",
+                 "updated"]
+    },
+    "croptypelist": {
+        pkey: "dummy"
+    }
 };
 
 CropType.beforeCreate = function(props, callback) {
@@ -59,6 +66,26 @@ CropType.prototype.beforeSave = function(callback) {
         type.created = Date.now();
     }
     callback(null);
+};
+
+CropType.getAll = function(callback) {
+    var bank = CropType.bank();
+
+    async.waterfall([
+        function(callback) {
+            bank.read("croptypelist", 0, callback);
+        },
+        function(slugs, callback) {
+            CropType.readArray(slugs, callback);
+        }
+    ], function(err, crops) {
+        if (err) {
+            callback(err, null);
+        } else {
+            _.sortBy(crops, "cost");
+            callback(null, crops);
+        }
+    });
 };
 
 module.exports = CropType;
