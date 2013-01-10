@@ -26,15 +26,13 @@ var _ = require("underscore"),
 var Crop = DatabankObject.subClass("crop");
 
 Crop.schema = {
-    "crop": {
-        pkey: "id",
-        fields: ["owner",
-                 "plot",
-                 "type",
-                 "state",
-                 "created",
-                 "updated"]
-    }
+    pkey: "id",
+    fields: ["owner",
+             "plot",
+             "type",
+             "state",
+             "created",
+             "updated"]
 };
 
 Crop.beforeCreate = function(props, callback) {
