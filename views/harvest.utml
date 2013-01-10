@@ -1,0 +1,7 @@
+<p>Harvesting your <%- crop.name %> will earn you <%- type.price %> coins.</p>
+
+<form action="/plot/<%- plot.uuid %>/harvest" method="post">
+  <input class="btn" type="submit" value="Harvest" />
+  <a href="/" class="btn btn-primary">Cancel</a>
+</form>
+

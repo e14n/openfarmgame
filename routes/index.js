@@ -304,14 +304,9 @@ exports.handleWater = function(req, res, next) {
             Crop.get(plot.crop, callback);
         },
         function(crop, callback) {
-            crop.watered = Date.now();
-            crop.needsWater = false;
 
-            if (crop.status == "New") {
-                crop.status = "Growing";
-            } else if (crop.status == "Growing") {
-                crop.status = "Almost ready";
-            }
+            crop.watered++;
+            crop.state = Crop.GROWING;
 
             crop.save(callback);
         }
@@ -362,11 +357,7 @@ exports.handlePlant = function(req, res, next) {
         function(saved, callback) {
             Crop.create({type: type.slug,
                          name: type.name,
-                         status: "New",
-                         state: 0,
-                         needsWater: true,
-                         ready: false,
-                         planted: now},
+                         state: Crop.NEW},
                         callback);
         },
         function(results, callback) {
@@ -414,6 +405,69 @@ exports.handleBuyPlot = function(req, res, next) {
         } else {
             res.redirect("/");
             req.user.buyActivity(plot, function(err) {});
+        }
+    });
+};
+
+exports.harvest = function(req, res, next) {
+
+    var plot = req.plot,
+        crop;
+
+    async.waterfall([
+        function(callback) {
+            Crop.get(plot.crop, callback);
+        },
+        function(results, callback) {
+            crop = results;
+            CropType.get(crop.type, callback);
+        }
+    ], function(err, type) {
+        if (err) {
+            next(err);
+        } else {
+            res.render('harvest', { title: 'Harvest a crop', farmer: req.user, plot: plot, crop: crop, type: type });
+        }
+    });
+};
+
+exports.handleHarvest = function(req, res, next) {
+
+    var plot = req.plot,
+        crop,
+        type;
+
+    async.waterfall([
+        function(callback) {
+            Crop.get(plot.crop, callback);
+        },
+        function(results, callback) {
+            crop = results;
+            CropType.get(crop.type, callback);
+        },
+        function(results, callback) {
+            type = results;
+            async.parallel([
+                function(callback) {
+                    crop.state = Crop.HARVESTED;
+                    crop.save(callback);
+                },
+                function(callback) {
+                    plot.crop = null;
+                    plot.save(callback);
+                },
+                function(callback) {
+                    req.user.coins += type.price;
+                    req.user.save(callback);
+                }
+            ], callback);
+        }
+    ], function(err, results) {
+        if (err) {
+            next(err);
+        } else {
+            res.redirect("/");
+            req.user.harvestActivity(crop, function(err) {});
         }
     });
 };

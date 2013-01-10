@@ -30,6 +30,13 @@ CropType.schema = {
         fields: ["name",
                  "cost",
                  "price",
+                 "waterings",
+                 "watertime",
+                 "reallywatertime",
+                 "dehydrationtime",
+                 "ripentime",
+                 "overripentime",
+                 "rottime",
                  "created",
                  "updated"]
     },

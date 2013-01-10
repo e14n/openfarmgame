@@ -35,6 +35,7 @@ var fs = require("fs"),
     CropType = require("./models/croptype"),
     OpenFarmGame = require("./models/openfarmgame"),
     Notifier = require("./lib/notifier"),
+    Updater = require("./lib/updater"),
     config,
     defaults = {
         port: 4000,
@@ -212,6 +213,8 @@ async.waterfall([
         app.post('/plot/:plot/tearup', userAuth, userRequired, reqPlot, userIsOwner, routes.handleTearUp);
         app.get('/plot/:plot/water', userAuth, userRequired, reqPlot, userIsOwner, routes.water);
         app.post('/plot/:plot/water', userAuth, userRequired, reqPlot, userIsOwner, routes.handleWater);
+        app.get('/plot/:plot/harvest', userAuth, userRequired, reqPlot, userIsOwner, routes.harvest);
+        app.post('/plot/:plot/harvest', userAuth, userRequired, reqPlot, userIsOwner, routes.handleHarvest);
         app.get('/buy-plot', userAuth, userRequired, routes.buyPlot);
         app.post('/buy-plot', userAuth, userRequired, routes.handleBuyPlot);
         app.get('/.well-known/host-meta.json', routes.hostmeta);
@@ -257,6 +260,13 @@ async.waterfall([
                 console.log(obj);
             }
         };
+
+        // updater -- keeps the world up-to-date
+        // XXX: move to master process when clustering
+
+        app.updater = new Updater({notifier: notifier});
+
+        app.updater.start();
 
         // Start the app
 
