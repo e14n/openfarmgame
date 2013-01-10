@@ -69,12 +69,12 @@ exports.index = function(req, res, next) {
     }
 };
 
-exports.login = function(req, res) {
-    res.render('login', { title: 'Login' });
-};
-
 exports.about = function(req, res) {
     res.render('about', { title: 'About Open Farm Game' });
+};
+
+exports.login = function(req, res) {
+    res.render('login', { title: 'Login' });
 };
 
 exports.handleLogin = function(req, res, next) {
