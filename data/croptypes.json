@@ -1,0 +1,14 @@
+[
+    {
+        "slug": "corn",
+        "name": "Corn",
+        "cost": 5,
+        "price": 17
+    },
+    {
+        "slug": "tomatoes",
+        "name": "Tomatoes",
+        "cost": 3,
+        "price": 10
+    }
+]

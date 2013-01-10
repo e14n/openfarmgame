@@ -17,6 +17,7 @@
 // limitations under the License.
 
 var fs = require("fs"),
+    async = require("async"),
     path = require("path"),
     _ = require("underscore"),
     express = require('express'),
@@ -51,7 +52,6 @@ if (fs.existsSync("/etc/openfarmgame.json")) {
     config = defaults;
 }
 
-
 if (!config.params) {
     if (config.driver == "disk") {
         config.params = {dir: "/var/lib/openfarmgame/"};
@@ -79,176 +79,182 @@ _.extend(config.params.schema, CropType.schema);
 
 var db = Databank.get(config.driver, config.params);
 
-db.connect({}, function(err) {
+async.waterfall([
+    function(callback) {
+        db.connect({}, callback);
+    },
+    function(callback) {
 
-    var app, client;
+        // Set global databank info
 
-    if (err) {
-        console.error(err);
-        return;
-    }
+        DatabankObject.bank = db;
 
-    // Set global databank info
+        // Set initial croptype data
 
-    DatabankObject.bank = db;
+        CropType.initialData(callback);
+    },
+    function(callback) {
 
-    app = module.exports = express.createServer();
+        var app, client;
 
-    config = _.defaults(config, defaults);
+        app = module.exports = express.createServer();
 
-    // Configuration
+        config = _.defaults(config, defaults);
 
-    var dbstore = new DatabankStore(db, null, 60000);
+        // Configuration
 
-    app.configure(function(){
-        app.set('views', __dirname + '/views');
-        app.set('view engine', 'utml');
-        app.use(express.bodyParser());
-        app.use(express.cookieParser());
-        app.use(express.methodOverride());
-        app.use(express.session({secret: (_(config).has('sessionSecret')) ? config.sessionSecret : "insecure",
-                                 store: dbstore}));
-        app.use(app.router);
-        app.use(express.static(__dirname + '/public'));
-    });
+        var dbstore = new DatabankStore(db, null, 60000);
 
-    app.configure('development', function(){
-        app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
-    });
+        app.configure(function(){
+            app.set('views', __dirname + '/views');
+            app.set('view engine', 'utml');
+            app.use(express.bodyParser());
+            app.use(express.cookieParser());
+            app.use(express.methodOverride());
+            app.use(express.session({secret: (_(config).has('sessionSecret')) ? config.sessionSecret : "insecure",
+                                     store: dbstore}));
+            app.use(app.router);
+            app.use(express.static(__dirname + '/public'));
+        });
 
-    app.configure('production', function(){
-        app.use(express.errorHandler());
-    });
+        app.configure('development', function(){
+            app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+        });
 
-    // Auth middleware
+        app.configure('production', function(){
+            app.use(express.errorHandler());
+        });
 
-    var userAuth = function(req, res, next) {
+        // Auth middleware
 
-        req.user = null;
-        res.local("user", null);
+        var userAuth = function(req, res, next) {
 
-        if (!req.session.farmerID) {
+            req.user = null;
+            res.local("user", null);
+
+            if (!req.session.farmerID) {
+                next();
+            } else {
+                Farmer.get(req.session.farmerID, function(err, farmer) {
+                    if (err) {
+                        next(err);
+                    } else {
+                        req.user = farmer;
+                        res.local("user", farmer);
+                        next();
+                    }
+                });
+            }
+        };
+
+        var userOptional = function(req, res, next) {
             next();
-        } else {
-            Farmer.get(req.session.farmerID, function(err, farmer) {
-                if (err) {
-                    next(err);
-                } else {
-                    req.user = farmer;
-                    res.local("user", farmer);
-                    next();
-                }
-            });
-        }
-    };
+        };
 
-    var userOptional = function(req, res, next) {
-        next();
-    };
+        var userRequired = function(req, res, next) {
+            if (!req.user) {
+                next(new Error("User is required"));
+            } else {
+                next();
+            }
+        };
 
-    var userRequired = function(req, res, next) {
-        if (!req.user) {
-            next(new Error("User is required"));
-        } else {
+        var noUser = function(req, res, next) {
+            if (req.user) {
+                next(new Error("Already logged in"));
+            } else {
+                next();
+            }
+        };
+
+        var userIsFarmer = function(req, res, next) {
+            if (req.params.webfinger && req.user.id == req.params.webfinger) {
+                next();
+            } else {
+                next(new Error("Must be the same farmer"));
+            }
+        };
+
+        var reqPlot = function(req, res, next) {
+
+            var plot = parseInt(req.params.plot, 10),
+                user = req.user;
+
+            if (plot < 0 || plot >= user.plots.length) {
+                next(new Error("Invalid plot: " + plot));
+                return;
+            }
+
+            req.plot = user.plots[plot];
+
             next();
-        }
-    };
+        };
 
-    var noUser = function(req, res, next) {
-        if (req.user) {
-            next(new Error("Already logged in"));
-        } else {
-            next();
-        }
-    };
+        // Routes
 
-    var userIsFarmer = function(req, res, next) {
-        if (req.params.webfinger && req.user.id == req.params.webfinger) {
-            next();
-        } else {
-            next(new Error("Must be the same farmer"));
-        }
-    };
+        app.get('/', userAuth, userOptional, routes.index);
+        app.get('/login', userAuth, noUser, routes.login);
+        app.post('/login', userAuth, noUser, routes.handleLogin);
+        app.post('/logout', userAuth, userRequired, routes.handleLogout);
+        app.get('/about', userAuth, userOptional, routes.about);
+        app.get('/authorized/:hostname', routes.authorized);
+        app.get('/farmer/:webfinger', userAuth, userOptional, routes.farmer);
+        app.get('/plant/:plot', userAuth, userRequired, reqPlot, routes.plant);
+        app.post('/plant/:plot', userAuth, userRequired, reqPlot, routes.handlePlant);
+        app.get('/tearup/:plot', userAuth, userRequired, reqPlot, routes.tearUp);
+        app.post('/tearup/:plot', userAuth, userRequired, reqPlot, routes.handleTearUp);
+        app.get('/water/:plot', userAuth, userRequired, reqPlot, routes.water);
+        app.post('/water/:plot', userAuth, userRequired, reqPlot, routes.handleWater);
+        app.get('/buy-plot', userAuth, userRequired, routes.buyPlot);
+        app.post('/buy-plot', userAuth, userRequired, routes.handleBuyPlot);
+        app.get('/.well-known/host-meta.json', routes.hostmeta);
 
-    var reqPlot = function(req, res, next) {
+        // Create a dialback client
 
-        var plot = parseInt(req.params.plot, 10),
-            user = req.user;
+        client = new DialbackClient({
+            hostname: config.hostname,
+            app: app,
+            bank: db,
+            userAgent: "OpenFarmGame/0.1.0"
+        });
 
-        if (plot < 0 || plot >= user.plots.length) {
-            next(new Error("Invalid plot: " + plot));
-            return;
-        }
+        // Configure this global object
 
-        req.plot = user.plots[plot];
+        Host.dialbackClient = client;
 
-        next();
-    };
+        // Configure the service object
 
-    // Routes
+        OpenFarmGame.name        = config.name;
+        OpenFarmGame.description = config.description;
+        OpenFarmGame.hostname    = config.hostname;
 
-    app.get('/', userAuth, userOptional, routes.index);
-    app.get('/login', userAuth, noUser, routes.login);
-    app.post('/login', userAuth, noUser, routes.handleLogin);
-    app.post('/logout', userAuth, userRequired, routes.handleLogout);
-    app.get('/about', userAuth, userOptional, routes.about);
-    app.get('/authorized/:hostname', routes.authorized);
-    app.get('/farmer/:webfinger', userAuth, userOptional, routes.farmer);
-    app.get('/plant/:plot', userAuth, userRequired, reqPlot, routes.plant);
-    app.post('/plant/:plot', userAuth, userRequired, reqPlot, routes.handlePlant);
-    app.get('/tearup/:plot', userAuth, userRequired, reqPlot, routes.tearUp);
-    app.post('/tearup/:plot', userAuth, userRequired, reqPlot, routes.handleTearUp);
-    app.get('/water/:plot', userAuth, userRequired, reqPlot, routes.water);
-    app.post('/water/:plot', userAuth, userRequired, reqPlot, routes.handleWater);
-    app.get('/buy-plot', userAuth, userRequired, routes.buyPlot);
-    app.post('/buy-plot', userAuth, userRequired, routes.handleBuyPlot);
-    app.get('/.well-known/host-meta.json', routes.hostmeta);
+        // Let Web stuff get to config
 
-    // Create a dialback client
+        app.config = config;
 
-    client = new DialbackClient({
-        hostname: config.hostname,
-        app: app,
-        bank: db,
-        userAgent: "OpenFarmGame/0.1.0"
-    });
+        // For sending notifications
 
-    // Configure this global object
+        var notifier = new Notifier();
 
-    Host.dialbackClient = client;
+        app.notify = function(farmer, title, template, data, callback) {
+            notifier.notify(farmer, title, template, data, callback);
+        };
 
-    // Configure the service object
+        // For handling errors
+        // XXX: switch to bunyan
 
-    OpenFarmGame.name        = config.name;
-    OpenFarmGame.description = config.description;
-    OpenFarmGame.hostname    = config.hostname;
+        app.log = function(obj) {
+            if (obj instanceof Error) {
+                console.error(obj);
+            } else {
+                console.log(obj);
+            }
+        };
 
-    // Let Web stuff get to config
+        // Start the app
 
-    app.config = config;
-
-    // For sending notifications
-
-    var notifier = new Notifier();
-
-    app.notify = function(farmer, title, template, data, callback) {
-        notifier.notify(farmer, title, template, data, callback);
-    };
-
-    // For handling errors
-    // XXX: switch to bunyan
-
-    app.log = function(obj) {
-        if (obj instanceof Error) {
-            console.error(obj);
-        } else {
-            console.log(obj);
-        }
-    };
-
-    // Start the app
-
-    app.listen(config.port, config.address, function() {
-        console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
-    });
-});
+        app.listen(config.port, config.address, callback);
+        
+    }], function() {
+        console.log("Express server listening on address %s port %d", config.address, config.port);
+});    

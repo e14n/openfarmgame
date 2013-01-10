@@ -18,6 +18,8 @@
 
 var _ = require("underscore"),
     async = require("async"),
+    fs = require("fs"),
+    path = require("path"),
     DatabankObject = require("databank").DatabankObject;
 
 var CropType = DatabankObject.subClass("croptype");
@@ -85,6 +87,35 @@ CropType.getAll = function(callback) {
             _.sortBy(crops, "cost");
             callback(null, crops);
         }
+    });
+};
+
+CropType.initialData = function(callback) {
+    var fname = path.join(__dirname, "..", "data", "croptypes.json");
+
+    async.waterfall([
+        function(callback) {
+            fs.readFile(fname, "utf8", callback);
+        },
+        function(data, callback) {
+            var arr;
+            try {
+                arr = JSON.parse(data);
+                callback(null, arr);
+            } catch(e) {
+                callback(e, null);
+            }
+        },
+        function(specs, callback) {
+            async.forEach(specs,
+                          function(spec, callback) {
+                              var type = new CropType(spec);
+                              type.save(callback);
+                          },
+                          callback);
+        }
+    ], function(err, results) {
+        callback(err);
     });
 };
 
