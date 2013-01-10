@@ -277,7 +277,13 @@ exports.water = function(req, res, next) {
 
     var plot = req.plot;
 
-    res.render('water', { title: 'Water a crop', farmer: req.user, plot: plot });
+    Crop.get(plot.crop, function(err, crop) {
+        if (err) {
+            next(err);
+        } else {
+            res.render('water', { title: 'Water a crop', farmer: req.user, plot: plot, crop: crop });
+        }
+    });
 };
 
 exports.handleWater = function(req, res, next) {
@@ -286,20 +292,30 @@ exports.handleWater = function(req, res, next) {
 
     if (req.user.coins < 1) {
         next(new Error("Not enough coins to water something."));
+        return;
     }
 
-    req.user.coins = req.user.coins - 1;
+    async.waterfall([
+        function(callback) {
+            req.user.coins -= 1;
+            req.user.save(callback);
+        },
+        function(saved, callback) {
+            Crop.get(plot.crop, callback);
+        },
+        function(crop, callback) {
+            crop.watered = Date.now();
+            crop.needsWater = false;
 
-    req.user.plots[plot].crop.watered = Date.now();
-    req.user.plots[plot].crop.needsWater = false;
+            if (crop.status == "New") {
+                crop.status = "Growing";
+            } else if (crop.status == "Growing") {
+                crop.status = "Almost ready";
+            }
 
-    if (req.user.plots[plot].crop.status == "New") {
-        req.user.plots[plot].crop.status = "Growing";
-    } else if (req.user.plots[plot].crop.status == "Growing") {
-        req.user.plots[plot].crop.status = "Almost ready";
-    }
-    
-    req.user.save(function(err) {
+            crop.save(callback);
+        }
+    ], function(err, crop) {
         if (err) {
             next(err);
         } else {

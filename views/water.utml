@@ -1,6 +1,6 @@
-<p>Watering your <%- farmer.plots[plot].crop.name %> will cost 1 coin.</p>
+<p>Watering your <%- crop.name %> will cost 1 coin.</p>
 
-<form action="/water/<%- plot %>" method="post">
+<form action="/plot/<%- plot.uuid %>/water" method="post">
   <input class="btn" type="submit" value="Water" />
   <a href="/" class="btn btn-primary">Cancel</a>
 </form>

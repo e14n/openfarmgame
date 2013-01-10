@@ -208,10 +208,10 @@ async.waterfall([
         app.get('/farmer/:webfinger', userAuth, userOptional, routes.farmer);
         app.get('/plot/:plot/plant', userAuth, userRequired, reqPlot, userIsOwner, routes.plant);
         app.post('/plot/:plot/plant', userAuth, userRequired, reqPlot, userIsOwner, routes.handlePlant);
-        app.get('/plot/:plot/tearup', userAuth, userRequired, reqPlot, routes.tearUp);
-        app.post('/plot/:plot/tearup', userAuth, userRequired, reqPlot, routes.handleTearUp);
-        app.get('/water/:plot', userAuth, userRequired, reqPlot, routes.water);
-        app.post('/water/:plot', userAuth, userRequired, reqPlot, routes.handleWater);
+        app.get('/plot/:plot/tearup', userAuth, userRequired, reqPlot, userIsOwner, routes.tearUp);
+        app.post('/plot/:plot/tearup', userAuth, userRequired, reqPlot, userIsOwner, routes.handleTearUp);
+        app.get('/plot/:plot/water', userAuth, userRequired, reqPlot, userIsOwner, routes.water);
+        app.post('/plot/:plot/water', userAuth, userRequired, reqPlot, userIsOwner, routes.handleWater);
         app.get('/buy-plot', userAuth, userRequired, routes.buyPlot);
         app.post('/buy-plot', userAuth, userRequired, routes.handleBuyPlot);
         app.get('/.well-known/host-meta.json', routes.hostmeta);
