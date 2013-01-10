@@ -1,23 +1,23 @@
 <li class="span3">
   <div class="thumbnail">
     <% if (plot.crop) { %>
-    <img src="/images/<%- plot.crop.name.toLowerCase() %>.jpg" width="300" height="200" alt="<%- plot.crop.name %>">
+    <img src="/images/<%- plot.crop.type %>.jpg" width="300" height="200" alt="<%- plot.crop.name %>">
     <h3><%- plot.crop.name %></h3>
     <p><%- plot.crop.status %></p>
     <p>
       <% if (plot.crop.needsWater) { %>
-      <a class="btn btn-primary" href="/water/<%- index %>">Water</a>
+      <a class="btn btn-primary" href="/farmer/<%- farmer.id %>/plot/<%- plot.uuid %>/water">Water</a>
       <% } %>
       <% if (plot.crop.ready) { %>
       <a class="btn btn-primary">Harvest</a>
       <% } %>
-      <a class="btn" href="/tearup/<%- index %>">Tear up</a>
+      <a class="btn" href="/farmer/<%- farmer.id %>/plot/<%- plot.uuid %>/tearup">Tear up</a>
     </p>
     <% } else { %>
     <img src="/images/dirt.jpg" width="300" height="200" alt="Empty">
     <h3>(Empty)</h3>
     <p>This is an empty plot.</p>
-    <p><a class="btn btn-primary" href="/plant/<%- index %>">Plant</a></p>
+    <p><a class="btn btn-primary" href="/farmer/<%- farmer.id %>/plot/<%- plot.uuid %>/plant">Plant</a></p>
     <% } %>
   </div>
 </li>

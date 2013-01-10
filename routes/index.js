@@ -21,6 +21,7 @@ var wf = require("webfinger"),
     _ = require("underscore"),
     uuid = require("node-uuid"),
     Farmer = require("../models/farmer"),
+    Plot = require("../models/plot"),
     Host = require("../models/host"),
     RequestToken = require("../models/requesttoken"),
     OpenFarmGame = require("../models/openfarmgame");
@@ -36,11 +37,17 @@ exports.hostmeta = function(req, res) {
     });
 };
 
-exports.index = function(req, res) {
+exports.index = function(req, res, next) {
     if (req.user) {
-        res.render('farmer', { title: 'Open Farm Game', farmer: req.user });
+        Plot.readArray(req.user.plots, function(err, plots) {
+            if (err) {
+                next(err);
+            } else {
+                res.render("farmer", {title: "Open Farm Game", farmer: req.user, plots: plots});
+            }
+        });
     } else {
-        res.render('index', { title: 'Open Farm Game' });
+        res.render('index', { title: "Open Farm Game" });
     }
 };
 
@@ -177,19 +184,27 @@ exports.authorized = function(req, res, next) {
 
 exports.farmer = function(req, res, next) {
 
-    var id = req.params.webfinger;
+    var id = req.params.webfinger,
+        farmer;
 
     async.waterfall([
         function(callback) {
             Farmer.get(id, callback);
+        },
+        function(results, callback) {
+            farmer = results;
+            Plot.readArray(farmer.plots, callback);
         }
-    ], function(err, farmer) {
+    ], function(err, plots) {
         if (err) {
             next(err);
         } else {
-            res.render('farmer', { title: 'Farmer ' + farmer.name, farmer: farmer });
+            res.render("farmer", {title: "Farmer " + farmer.name, farmer: farmer, plots: plots});
         }
     });
+};
+
+var showFarmer = function(res, farmer) {
 };
 
 exports.tearUp = function(req, res, next) {
