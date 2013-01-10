@@ -5,8 +5,9 @@
 <h3>Plots</h3>
 
 <ul class="thumbnails">
-  <% _.each(plots, function(plot) { %>
-  <%= partial("plot", {plot: plot}) %>
+  <% _.each(plots, function(plot) {
+     var crop = (plot.crop) ? crops[plot.crop] : null; %>
+  <%= partial("plot", {plot: plot, crop: crop}) %>
   <% }); %>
 </ul>
 

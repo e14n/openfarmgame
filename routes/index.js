@@ -22,6 +22,7 @@ var wf = require("webfinger"),
     uuid = require("node-uuid"),
     Farmer = require("../models/farmer"),
     Plot = require("../models/plot"),
+    Crop = require("../models/crop"),
     Host = require("../models/host"),
     RequestToken = require("../models/requesttoken"),
     OpenFarmGame = require("../models/openfarmgame");
@@ -185,7 +186,8 @@ exports.authorized = function(req, res, next) {
 exports.farmer = function(req, res, next) {
 
     var id = req.params.webfinger,
-        farmer;
+        farmer,
+        plots;
 
     async.waterfall([
         function(callback) {
@@ -194,12 +196,22 @@ exports.farmer = function(req, res, next) {
         function(results, callback) {
             farmer = results;
             Plot.readArray(farmer.plots, callback);
+        },
+        function(results, callback) {
+            var cropIDs;
+            plots = results;
+            cropIDs = _.compact(_.pluck(plots, "crop"));
+            if (cropIDs.length > 0) {
+                Crop.readAll(cropIDs, callback);
+            } else {
+                callback(null, []);
+            }
         }
-    ], function(err, plots) {
+    ], function(err, crops) {
         if (err) {
             next(err);
         } else {
-            res.render("farmer", {title: "Farmer " + farmer.name, farmer: farmer, plots: plots});
+            res.render("farmer", {title: "Farmer " + farmer.name, farmer: farmer, plots: plots, crops: crops});
         }
     });
 };

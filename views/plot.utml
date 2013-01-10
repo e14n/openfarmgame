@@ -1,14 +1,14 @@
 <li class="span3">
   <div class="thumbnail">
-    <% if (plot.crop) { %>
-    <img src="/images/<%- plot.crop.type %>.jpg" width="300" height="200" alt="<%- plot.crop.name %>">
-    <h3><%- plot.crop.name %></h3>
-    <p><%- plot.crop.status %></p>
+    <% if (crop) { %>
+    <img src="/images/<%- crop.type %>.jpg" width="300" height="200" alt="<%- crop.name %>">
+    <h3><%- crop.name %></h3>
+    <p><%- crop.status %></p>
     <p>
-      <% if (plot.crop.needsWater) { %>
+      <% if (crop.needsWater) { %>
       <a class="btn btn-primary" href="/farmer/<%- farmer.id %>/plot/<%- plot.uuid %>/water">Water</a>
       <% } %>
-      <% if (plot.crop.ready) { %>
+      <% if (crop.ready) { %>
       <a class="btn btn-primary">Harvest</a>
       <% } %>
       <a class="btn" href="/farmer/<%- farmer.id %>/plot/<%- plot.uuid %>/tearup">Tear up</a>
