@@ -26,13 +26,11 @@ var _ = require("underscore"),
 var Plot = DatabankObject.subClass("plot");
 
 Plot.schema = {
-    "plot": {
-        pkey: "id",
-        fields: ["owner",
-                 "crop",
-                 "created",
-                 "updated"]
-    }
+    pkey: "id",
+    fields: ["owner",
+             "crop",
+             "created",
+             "updated"]
 };
 
 Plot.beforeCreate = function(props, callback) {
