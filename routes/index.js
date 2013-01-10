@@ -320,7 +320,7 @@ exports.handleWater = function(req, res, next) {
             next(err);
         } else {
             res.redirect("/");
-            req.user.waterActivity(plot, function(err) {});
+            req.user.waterActivity(crop, function(err) {});
         }
     });
 };
