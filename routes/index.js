@@ -23,6 +23,7 @@ var wf = require("webfinger"),
     Farmer = require("../models/farmer"),
     Plot = require("../models/plot"),
     Crop = require("../models/crop"),
+    CropType = require("../models/croptype"),
     Host = require("../models/host"),
     RequestToken = require("../models/requesttoken"),
     OpenFarmGame = require("../models/openfarmgame");
@@ -221,8 +222,7 @@ var showFarmer = function(res, farmer) {
 
 exports.tearUp = function(req, res, next) {
 
-    var plot = req.plot,
-        crops = testCrops();
+    var plot = req.plot;
 
     res.render('tearup', { title: 'Tear up a crop', farmer: req.user, plot: plot });
 };
@@ -244,8 +244,7 @@ exports.handleTearUp = function(req, res, next) {
 
 exports.water = function(req, res, next) {
 
-    var plot = req.plot,
-        crops = testCrops();
+    var plot = req.plot;
 
     res.render('water', { title: 'Water a crop', farmer: req.user, plot: plot });
 };
@@ -280,10 +279,12 @@ exports.handleWater = function(req, res, next) {
 };
 
 exports.plant = function(req, res, next) {
-    var plot = req.plot,
-        crops = testCrops();
 
-    res.render('plant', { title: 'Plant a new crop', farmer: req.user, plot: plot, crops: crops });
+    var plot = req.plot;
+
+    CropType.getAll(function(err, types) {
+        res.render('plant', { title: 'Plant a new crop', farmer: req.user, plot: plot, types: types });
+    });
 };
 
 exports.handlePlant = function(req, res, next) {

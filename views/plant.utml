@@ -2,9 +2,9 @@
 
 <ul class="thumbnails">
 
-  <% _.each(crops, function(crop, idx) { %>
+  <% _.each(types, function(type) { %>
 
-  <%= partial("crop", {crop: crop, idx: idx}) %>
+      <%= partial("croptype", {type: type}) %>
 
   <% }); %>
 
