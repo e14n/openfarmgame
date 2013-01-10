@@ -83,7 +83,7 @@ Farmer.fromPerson = function(person, token, secret, callback) {
                            name: person.displayName,
                            homepage: person.url,
                            coins: 25,
-                           plots: [plot.id],
+                           plots: [plot.uuid],
                            token: token,
                            secret: secret,
                            created: Date.now(),

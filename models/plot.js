@@ -26,7 +26,7 @@ var _ = require("underscore"),
 var Plot = DatabankObject.subClass("plot");
 
 Plot.schema = {
-    pkey: "id",
+    pkey: "uuid",
     fields: ["owner",
              "crop",
              "created",
@@ -34,7 +34,7 @@ Plot.schema = {
 };
 
 Plot.beforeCreate = function(props, callback) {
-    props.id = "urn:uuid:"+uuid.v4();
+    props.uuid = uuid.v4();
     props.created = Date.now();
     props.updated = props.created;
     callback(null, props);
@@ -51,8 +51,8 @@ Plot.prototype.beforeSave = function(callback) {
     if (!plot.created) {
         plot.created = Date.now();
     }
-    if (!plot.id) {
-        plot.id = "urn:uuid:"+uuid.v4();
+    if (!plot.uuid) {
+        plot.uuid = uuid.v4();
     }
     callback(null);
 };
