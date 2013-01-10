@@ -6,18 +6,18 @@
     <p><%- crop.status %></p>
     <p>
       <% if (crop.needsWater) { %>
-      <a class="btn btn-primary" href="/farmer/<%- farmer.id %>/plot/<%- plot.uuid %>/water">Water</a>
+      <a class="btn btn-primary" href="/plot/<%- plot.uuid %>/water">Water</a>
       <% } %>
       <% if (crop.ready) { %>
       <a class="btn btn-primary">Harvest</a>
       <% } %>
-      <a class="btn" href="/farmer/<%- farmer.id %>/plot/<%- plot.uuid %>/tearup">Tear up</a>
+      <a class="btn" href="/plot/<%- plot.uuid %>/tearup">Tear up</a>
     </p>
     <% } else { %>
     <img src="/images/dirt.jpg" width="300" height="200" alt="Empty">
     <h3>(Empty)</h3>
     <p>This is an empty plot.</p>
-    <p><a class="btn btn-primary" href="/farmer/<%- farmer.id %>/plot/<%- plot.uuid %>/plant">Plant</a></p>
+    <p><a class="btn btn-primary" href="/plot/<%- plot.uuid %>/plant">Plant</a></p>
     <% } %>
   </div>
 </li>

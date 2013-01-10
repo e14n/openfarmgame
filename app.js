@@ -177,17 +177,24 @@ async.waterfall([
 
         var reqPlot = function(req, res, next) {
 
-            var plot = parseInt(req.params.plot, 10),
-                user = req.user;
+            var uuid = req.params.plot;
 
-            if (plot < 0 || plot >= user.plots.length) {
-                next(new Error("Invalid plot: " + plot));
-                return;
+            Plot.get(uuid, function(err, plot) {
+                if (err) {
+                    next(err);
+                } else {
+                    req.plot = plot;
+                    next();
+                }
+            });
+        };
+
+        var userIsOwner = function(req, res, next) {
+            if (req.user.id == req.plot.owner) {
+                next();
+            } else {
+                next(new Error("Must be the owner"));
             }
-
-            req.plot = user.plots[plot];
-
-            next();
         };
 
         // Routes
@@ -199,8 +206,8 @@ async.waterfall([
         app.get('/about', userAuth, userOptional, routes.about);
         app.get('/authorized/:hostname', routes.authorized);
         app.get('/farmer/:webfinger', userAuth, userOptional, routes.farmer);
-        app.get('/plant/:plot', userAuth, userRequired, reqPlot, routes.plant);
-        app.post('/plant/:plot', userAuth, userRequired, reqPlot, routes.handlePlant);
+        app.get('/plot/:plot/plant', userAuth, userRequired, reqPlot, userIsOwner, routes.plant);
+        app.post('/plot/:plot/plant', userAuth, userRequired, reqPlot, userIsOwner, routes.handlePlant);
         app.get('/tearup/:plot', userAuth, userRequired, reqPlot, routes.tearUp);
         app.post('/tearup/:plot', userAuth, userRequired, reqPlot, routes.handleTearUp);
         app.get('/water/:plot', userAuth, userRequired, reqPlot, routes.water);

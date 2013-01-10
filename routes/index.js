@@ -40,12 +40,28 @@ exports.hostmeta = function(req, res) {
 };
 
 exports.index = function(req, res, next) {
+    var plots;
+
     if (req.user) {
-        Plot.readArray(req.user.plots, function(err, plots) {
+        async.waterfall([
+            function(callback) {
+                Plot.readArray(req.user.plots, callback);
+            },
+            function(results, callback) {
+                var cropIDs;
+                plots = results;
+                cropIDs = _.compact(_.pluck(plots, "crop"));
+                if (cropIDs.length > 0) {
+                    Crop.readAll(cropIDs, callback);
+                } else {
+                    callback(null, []);
+                }
+            }
+        ], function(err, crops) {
             if (err) {
                 next(err);
             } else {
-                res.render("farmer", {title: "Open Farm Game", farmer: req.user, plots: plots});
+                res.render("farmer", {title: "Open Farm Game", farmer: req.user, plots: plots, crops: crops});
             }
         });
     } else {
@@ -217,9 +233,6 @@ exports.farmer = function(req, res, next) {
     });
 };
 
-var showFarmer = function(res, farmer) {
-};
-
 exports.tearUp = function(req, res, next) {
 
     var plot = req.plot;
@@ -290,41 +303,40 @@ exports.plant = function(req, res, next) {
 exports.handlePlant = function(req, res, next) {
 
     var plot = req.plot,
-        cropIndex = parseInt(req.body.cropIndex, 10),
-        crops = testCrops(),
+        slug = req.body.type,
         crop,
         now = Date.now();
 
-    if (cropIndex < 0 || cropIndex >= crops.length) {
-        next(new Error("Invalid crop"));
-        return;
-    }
+    async.waterfall([
+        function(callback) {
+            CropType.get(slug, callback);
+        },
+        function(type, callback) {
+            if (type.cost > req.user.coins) {
+                callback(new Error("Not enough coins"), null);
+                return;
+            }
 
-    crop = crops[cropIndex];
+            req.user.coins -= type.cost;
 
-    if (crop.cost > req.user.coins) {
-        next(new Error("Not enough coins."));
-        return;
-    }
-
-    req.user.coins -= crop.cost;
-
-    req.user.plots[plot].crop = {
-        name: crop.name,
-        id: "urn:uuid:"+uuid.v4(),
-        status: "New",
-        needsWater: true,
-        ready: false,
-        planted: now,
-        watered: 0
-    };
-
-    req.user.save(function(err) {
+            Crop.create({type: type.slug,
+                         name: type.name,
+                         status: "New",
+                         state: 0,
+                         planted: now},
+                        callback);
+        },
+        function(results, callback) {
+            crop = results;
+            plot.crop = crop.uuid;
+            plot.save(callback);
+        }
+    ], function(err) {
         if (err) {
             next(err);
         } else {
             res.redirect("/");
-            req.user.plantActivity(plot, function(err) {});
+            req.user.plantActivity(crop, function(err) {});
         }
     });
 };
@@ -359,17 +371,3 @@ exports.handleBuyPlot = function(req, res, next) {
     });
 };
 
-var testCrops = function() {
-    return [
-        {
-            name: "Corn",
-            cost: 5,
-            price: 17
-        },
-        {
-            name: "Tomatoes",
-            cost: 3,
-            price: 10
-        }
-    ];
-};

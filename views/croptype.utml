@@ -4,10 +4,9 @@
     <h3><%- type.name %></h3>
     <p>Cost: <%- type.cost %> coins</p>
     <p>
-      <form action="/plant/<%- plot %>" method="post">
+      <form action="/plot/<%- plot.uuid %>/plant" method="post">
 
         <input type="hidden" name="type" value="<%- type.slug %>"/>
-        <input type="hidden" name="plot" value="<%- plot %>" />
 
         <input class="btn" type="submit" value="Plant" <% if (farmer.coins < type.cost) { %>disabled="disabled"<% } %> />
 

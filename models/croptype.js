@@ -48,6 +48,14 @@ CropType.beforeCreate = function(props, callback) {
     callback(null, props);
 };
 
+CropType.prototype.afterCreate = function(callback) {
+    var type = this;
+    var bank = CropType.bank();
+    bank.append("croptypelist", 0, type.slug, function(err, list) {
+        callback(err);
+    });
+};
+
 CropType.prototype.beforeUpdate = function(props, callback) {
     if (!props.slug) {
         callback(new Error("No slug!"), null);
@@ -68,6 +76,19 @@ CropType.prototype.beforeSave = function(callback) {
         type.created = Date.now();
     }
     callback(null);
+};
+
+CropType.prototype.afterSave = function(callback) {
+    var type = this;
+    var bank = CropType.bank();
+    bank.indexOf("croptypelist", 0, type.slug, function(err, index) {
+        if ((err && err.name == "NoSuchThingError") ||
+            index === -1) {
+            bank.append("croptypelist", 0, type.slug, callback);
+        } else {
+            callback(null);
+        }
+    });
 };
 
 CropType.getAll = function(callback) {

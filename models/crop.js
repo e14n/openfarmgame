@@ -19,14 +19,12 @@
 var _ = require("underscore"),
     async = require("async"),
     uuid = require("node-uuid"),
-    DatabankObject = require("databank").DatabankObject,
-    OpenFarmGame = require("./openfarmgame"),
-    Host = require("./host");
+    DatabankObject = require("databank").DatabankObject;
 
 var Crop = DatabankObject.subClass("crop");
 
 Crop.schema = {
-    pkey: "id",
+    pkey: "uuid",
     fields: ["owner",
              "plot",
              "type",
@@ -36,7 +34,7 @@ Crop.schema = {
 };
 
 Crop.beforeCreate = function(props, callback) {
-    props.id = "urn:uuid:"+uuid.v4();
+    props.uuid = uuid.v4();
     props.created = Date.now();
     props.updated = props.created;
     callback(null, props);
@@ -53,10 +51,19 @@ Crop.prototype.beforeSave = function(callback) {
     if (!crop.created) {
         crop.created = Date.now();
     }
-    if (!crop.id) {
-        crop.id = "urn:uuid:"+uuid.v4();
+    if (!crop.uuid) {
+        crop.uuid = uuid.v4();
     }
     callback(null);
+};
+
+Crop.prototype.asObject = function() {
+    var crop = this;
+    return {
+        id: "urn:uuid:"+crop.uuid,
+        objectType: "http://openfarmgame.com/schema/object-type/crop",
+        displayName: crop.name
+    };
 };
 
 module.exports = Crop;

@@ -151,23 +151,21 @@ Farmer.prototype.joinActivity = function(callback) {
                         callback);
 };
 
-Farmer.prototype.buyActivity = function(plotIndex, callback) {
-    var farmer = this,
-        plot = farmer.getPlot(plotIndex);
+Farmer.prototype.buyActivity = function(plot, callback) {
+    var farmer = this;
 
     farmer.postActivity({verb: "purchase",
                          content: farmer.name + " bought a new plot.",
-                         object: Farmer.plotAsObject(plot)},
+                         object: plot.asObject()},
                          callback);
 };
 
-Farmer.prototype.plantActivity = function(plotIndex, callback) {
-    var farmer = this,
-        crop = farmer.getCrop(plotIndex);
+Farmer.prototype.plantActivity = function(crop, callback) {
+    var farmer = this;
 
     farmer.postActivity({verb: "http://openfarmgame.com/schema/verb/plant",
                          content: farmer.name + " planted " + crop.name,
-                         object: Farmer.cropAsObject(crop)},
+                         object: crop.asObject()},
                          callback);
 };
 
@@ -175,17 +173,16 @@ Farmer.prototype.tearUpActivity = function(crop, callback) {
     var farmer = this;
     farmer.postActivity({verb: "http://openfarmgame.com/schema/verb/tear-up",
                          content: farmer.name + " tore up " + crop.name,
-                         object: Farmer.cropAsObject(crop)},
+                         object: crop.asObject()},
                          callback);
 };
 
-Farmer.prototype.waterActivity = function(plotIndex, callback) {
-    var farmer = this,
-        crop = farmer.getCrop(plotIndex);
+Farmer.prototype.waterActivity = function(crop, callback) {
+    var farmer = this;
 
     farmer.postActivity({verb: "http://openfarmgame.com/schema/verb/water",
                          content: farmer.name + " watered " + crop.name,
-                         object: Farmer.cropAsObject(crop)},
+                         object: crop.asObject()},
                          callback);
 };
 
@@ -193,42 +190,8 @@ Farmer.prototype.harvestActivity = function(crop, callback) {
     var farmer = this;
     farmer.postActivity({verb: "http://openfarmgame.com/schema/verb/harvest",
                          content: farmer.name + " harvested " + crop.name,
-                         object: Farmer.cropAsObject(crop)},
+                         object: crop.asObject()},
                          callback);
-};
-
-Farmer.prototype.getCrop = function(idx) {
-    var farmer = this;
-    if (idx >= 0 && idx < farmer.plots.length) {
-        return farmer.plots[idx].crop;
-    } else {
-        return null;
-    }
-};
-
-Farmer.prototype.getPlot = function(idx) {
-    var farmer = this;
-    if (idx >= 0 && idx < farmer.plots.length) {
-        return farmer.plots[idx];
-    } else {
-        return null;
-    }
-};
-
-Farmer.cropAsObject = function(crop) {
-    return {
-        id: crop.id,
-        objectType: "http://openfarmgame.com/schema/object-type/crop",
-        displayName: crop.name
-    };
-};
-
-Farmer.plotAsObject = function(plot) {
-    return {
-        id: plot.id,
-        objectType: "http://openfarmgame.com/schema/object-type/plot",
-        displayName: "a plot of land"
-    };
 };
 
 Farmer.getHostname = function(id) {

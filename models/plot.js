@@ -57,4 +57,14 @@ Plot.prototype.beforeSave = function(callback) {
     callback(null);
 };
 
+Plot.prototype.asObject = function() {
+    var plot = this;
+    return {
+        id: "urn:uuid:"+plot.uuid,
+        objectType: "http://openfarmgame.com/schema/object-type/plot",
+        displayName: "a plot of land"
+    };
+};
+
+
 module.exports = Plot;
