@@ -57,15 +57,19 @@ Plot.prototype.beforeSave = function(callback) {
     callback(null);
 };
 
+Plot.prototype.url = function(callback) {
+    var plot = this;
+    return OpenFarmGame.url("/plot/"+plot.uuid);
+};
+
 Plot.prototype.asObject = function() {
     var plot = this;
     return {
         id: "urn:uuid:"+plot.uuid,
         objectType: "http://openfarmgame.com/schema/object-type/plot",
         displayName: "a plot of land",
-        url: OpenFarmGame.url("/plot/"+plot.uuid)
+        url: plot.url()
     };
 };
-
 
 module.exports = Plot;

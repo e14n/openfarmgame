@@ -1,0 +1,6 @@
+<p>The <a href="<%- crop.url() %>"><%- crop.name %></a> you planted
+  is <strong>parched</strong>. The crop has been damaged by neglect and
+  won&apos;t earn you as many coins at harvest time.</p>
+
+<p>You should water it now; parched crops will
+  eventually <strong>die</strong>.</p>

@@ -72,12 +72,17 @@ Crop.prototype.beforeSave = function(callback) {
     callback(null);
 };
 
+Crop.prototype.url = function() {
+    var crop = this;
+    return OpenFarmGame.url("/crop/"+crop.uuid);
+};
+
 Crop.prototype.asObject = function() {
     var crop = this;
     return {
         id: "urn:uuid:"+crop.uuid,
         objectType: "http://openfarmgame.com/schema/object-type/crop",
-        url: OpenFarmGame.url("/crop/"+crop.uuid),
+        url: crop.url(),
         displayName: crop.name
     };
 };

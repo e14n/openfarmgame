@@ -1,0 +1,5 @@
+<p>The <a href="<%- crop.url() %>"><%- crop.name %></a> you planted is
+ripe and ready to be harvested. That will get you some coins!</p>
+
+<p>Don&apos;t wait too long, or it will get <strong>overripe</strong>;
+ overripe crops are worth less money.</p>

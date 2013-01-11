@@ -1,0 +1,3 @@
+<p>The <a href="<%- crop.url() %>"><%- crop.name %></a> you planted
+  is <strong>dead</strong> due to dehydration. What a shame. Next
+  time, make sure to water your crop!</p>

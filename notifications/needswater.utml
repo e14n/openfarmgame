@@ -1,0 +1,7 @@
+<p>The <a href="<%- crop.url() %>"><%- crop.name %></a> you
+  planted <strong>needs water</strong>.  Your crop can&apos;t grow
+  unless you water it!</p>
+
+<p>Don&apos;t wait too long, or it will get <strong>parched</strong>;
+  parched crops are worth less money when you eventually harvest
+  them.</p>

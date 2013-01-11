@@ -1,0 +1,6 @@
+<p>You've got an <a href="<%- plot.url() %>">empty plot of
+land</a>. You should plant a crop on it!</p>
+
+<p>It's only by growing crops and harvesting them that you get money
+to buy stuff, like... more land!</p>
+
