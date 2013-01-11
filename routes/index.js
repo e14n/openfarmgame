@@ -265,6 +265,7 @@ exports.handleTearUp = function(req, res, next) {
         function(results, callback) {
             crop = results;
             plot.crop = null;
+            plot.emptyNotified = null;
             plot.save(callback);
         },
         function(saved, callback) {
@@ -372,6 +373,7 @@ exports.handlePlant = function(req, res, next) {
         function(results, callback) {
             crop = results;
             plot.crop = crop.uuid;
+            plot.emptyNotified = null;
             plot.save(callback);
         }
     ], function(err) {
@@ -463,10 +465,16 @@ exports.handleHarvest = function(req, res, next) {
                 },
                 function(callback) {
                     plot.crop = null;
+                    plot.emptyNotified = null;
                     plot.save(callback);
                 },
                 function(callback) {
-                    req.user.coins += type.price;
+                    // Dogfood or something
+                    if (crop.damaged) {
+                        req.user.coins += Math.ceil(type.price/2.0);
+                    } else {
+                        req.user.coins += type.price;
+                    }
                     req.user.save(callback);
                 }
             ], callback);

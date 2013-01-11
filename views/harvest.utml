@@ -1,4 +1,4 @@
-<p>Harvesting your <%- crop.name %> will earn you <%- type.price %> coins.</p>
+<p>Harvesting your <%- crop.name %> will earn you <%- (crop.damaged) ? Math.floor(type.price/2.0) : type.price %> coins.</p>
 
 <form action="/plot/<%- plot.uuid %>/harvest" method="post">
   <input class="btn" type="submit" value="Harvest" />
