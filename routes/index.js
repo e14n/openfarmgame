@@ -363,6 +363,8 @@ exports.handlePlant = function(req, res, next) {
         },
         function(saved, callback) {
             Crop.create({type: type.slug,
+                         plot: plot.uuid,
+                         owner: req.user.id,
                          name: type.name,
                          state: Crop.NEW},
                         callback);
@@ -503,6 +505,34 @@ exports.plot = function(req, res, next) {
             crop = results[0];
             farmer = results[1];
             res.render('plotpage', {title: 'A plot by ' + farmer.name,
+                                    user: req.user,
+                                    farmer: farmer,
+                                    plot: plot,
+                                    crop: crop});
+        }
+    });
+};
+
+exports.crop = function(req, res, next) {
+
+    var crop = req.crop;
+
+    async.parallel([
+        function(callback) {
+            Plot.get(crop.plot, callback);
+        },
+        function(callback) {
+            Farmer.get(crop.owner, callback);
+        }
+    ], function(err, results) {
+        var plot, farmer;
+
+        if (err) {
+            next(err);
+        } else {
+            plot = results[0];
+            farmer = results[1];
+            res.render('croppage', {title: crop.name + ' by ' + farmer.name,
                                     user: req.user,
                                     farmer: farmer,
                                     plot: plot,

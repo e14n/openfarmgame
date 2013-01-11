@@ -190,6 +190,20 @@ async.waterfall([
             });
         };
 
+        var reqCrop = function(req, res, next) {
+
+            var uuid = req.params.crop;
+
+            Crop.get(uuid, function(err, crop) {
+                if (err) {
+                    next(err);
+                } else {
+                    req.crop = crop;
+                    next();
+                }
+            });
+        };
+
         var userIsOwner = function(req, res, next) {
             if (req.user.id == req.plot.owner) {
                 next();
@@ -208,6 +222,7 @@ async.waterfall([
         app.get('/authorized/:hostname', routes.authorized);
         app.get('/farmer/:webfinger', userAuth, userOptional, routes.farmer);
         app.get('/plot/:plot', userAuth, userOptional, reqPlot, routes.plot);
+        app.get('/crop/:crop', userAuth, userOptional, reqCrop, routes.crop);
         app.get('/plot/:plot/plant', userAuth, userRequired, reqPlot, userIsOwner, routes.plant);
         app.post('/plot/:plot/plant', userAuth, userRequired, reqPlot, userIsOwner, routes.handlePlant);
         app.get('/plot/:plot/tearup', userAuth, userRequired, reqPlot, userIsOwner, routes.tearUp);

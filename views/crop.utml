@@ -1,0 +1,14 @@
+    <img src="/images/<%- crop.type %>.jpg" width="300" height="200" alt="<%- crop.name %>">
+    <h3><%- crop.name %></h3>
+    <p><%- crop.status() %></p>
+    <% if (user && user.id == farmer.id) { %>
+    <p>
+      <% if (crop.needsWater()) { %>
+      <a class="btn btn-primary" rel="tooltip" title="1 coin" href="/plot/<%- plot.uuid %>/water">Water</a>
+      <% } %>
+      <% if (crop.ready()) { %>
+      <a class="btn btn-primary" rel="tooltip" title="reap your reward!" href="/plot/<%- plot.uuid %>/harvest">Harvest</a>
+      <% } %>
+      <a class="btn" href="/plot/<%- plot.uuid %>/tearup">Tear up</a>
+    </p>
+    <% } %>

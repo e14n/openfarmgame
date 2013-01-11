@@ -1,0 +1,9 @@
+<h1><%- crop.name %> by <a href="/farmer/<%- farmer.id %>"><%- farmer.name %></a></h1>
+
+<ul class="thumbnails">
+  <li class="span3">
+    <div class="thumbnail">
+      <%= partial("crop") %>
+    </div>
+  </li>
+</ul>

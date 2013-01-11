@@ -44,6 +44,7 @@ Crop.beforeCreate = function(props, callback) {
     if (!props.state) {
         props.state = Crop.NEW;
     }
+    console.dir(props);
     callback(null, props);
 };
 
