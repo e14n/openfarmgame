@@ -62,7 +62,8 @@ Plot.prototype.asObject = function() {
     return {
         id: "urn:uuid:"+plot.uuid,
         objectType: "http://openfarmgame.com/schema/object-type/plot",
-        displayName: "a plot of land"
+        displayName: "a plot of land",
+        url: OpenFarmGame.url("/plot/"+plot.uuid)
     };
 };
 
