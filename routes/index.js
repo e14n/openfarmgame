@@ -61,7 +61,7 @@ exports.index = function(req, res, next) {
             if (err) {
                 next(err);
             } else {
-                res.render("farmer", {title: "Open Farm Game", farmer: req.user, plots: plots, crops: crops});
+                res.render("farmer", {title: "Open Farm Game", user: req.user, farmer: req.user, plots: plots, crops: crops});
             }
         });
     } else {
@@ -228,7 +228,11 @@ exports.farmer = function(req, res, next) {
         if (err) {
             next(err);
         } else {
-            res.render("farmer", {title: "Farmer " + farmer.name, farmer: farmer, plots: plots, crops: crops});
+            res.render("farmer", {title: "Farmer " + farmer.name, 
+                                  user: req.user, 
+                                  farmer: farmer, 
+                                  plots: plots, 
+                                  crops: crops});
         }
     });
 };
@@ -241,7 +245,10 @@ exports.tearUp = function(req, res, next) {
         if (err) {
             next(err);
         } else {
-            res.render('tearup', { title: 'Tear up a crop', farmer: req.user, plot: plot, crop: crop });
+            res.render('tearup', { title: 'Tear up a crop',
+                                   farmer: req.user,
+                                   plot: plot,
+                                   crop: crop });
         }
     });
 };
@@ -281,7 +288,7 @@ exports.water = function(req, res, next) {
         if (err) {
             next(err);
         } else {
-            res.render('water', { title: 'Water a crop', farmer: req.user, plot: plot, crop: crop });
+            res.render('water', {title: 'Water a crop', farmer: req.user, plot: plot, crop: crop});
         }
     });
 };
@@ -468,6 +475,38 @@ exports.handleHarvest = function(req, res, next) {
         } else {
             res.redirect("/");
             req.user.harvestActivity(crop, function(err) {});
+        }
+    });
+};
+
+exports.plot = function(req, res, next) {
+
+    var plot = req.plot;
+
+    async.parallel([
+        function(callback) {
+            if (plot.crop) {
+                Crop.get(plot.crop, callback);
+            } else {
+                callback(null, null);
+            }
+        },
+        function(callback) {
+            Farmer.get(plot.owner, callback);
+        }
+    ], function(err, results) {
+        var crop, farmer;
+
+        if (err) {
+            next(err);
+        } else {
+            crop = results[0];
+            farmer = results[1];
+            res.render('plotpage', {title: 'A plot by ' + farmer.name,
+                                    user: req.user,
+                                    farmer: farmer,
+                                    plot: plot,
+                                    crop: crop});
         }
     });
 };

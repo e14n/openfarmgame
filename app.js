@@ -207,6 +207,7 @@ async.waterfall([
         app.get('/about', userAuth, userOptional, routes.about);
         app.get('/authorized/:hostname', routes.authorized);
         app.get('/farmer/:webfinger', userAuth, userOptional, routes.farmer);
+        app.get('/plot/:plot', userAuth, userOptional, reqPlot, routes.plot);
         app.get('/plot/:plot/plant', userAuth, userRequired, reqPlot, userIsOwner, routes.plant);
         app.post('/plot/:plot/plant', userAuth, userRequired, reqPlot, userIsOwner, routes.handlePlant);
         app.get('/plot/:plot/tearup', userAuth, userRequired, reqPlot, userIsOwner, routes.tearUp);

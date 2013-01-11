@@ -11,6 +11,6 @@
   <% }); %>
 </ul>
 
-<% if (farmer.coins >= 50) { %>
-<p><a class="btn btn-primary" href="/buy-plot">Buy a new plot</a></p>
+<% if (user && user.id == farmer.id) { %>
+<p><a class="btn btn-primary" rel="tooltip" title="requires 50 coins" href="/buy-plot"<% if (farmer.coins < 50) { %> disabled="disabled" onclick="return false;"<% } %>>Buy a new plot</a></p>
 <% } %>
