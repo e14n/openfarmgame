@@ -152,11 +152,15 @@ Farmer.prototype.joinActivity = function(callback) {
 };
 
 Farmer.prototype.buyActivity = function(plot, callback) {
-    var farmer = this;
+    var farmer = this,
+        obj = plot.asObject(),
+        content = "<a href='" + farmer.homepage + "'>" + farmer.name + "</a> " + 
+            " bought " + 
+            "<a href='" + obj.url + "'>a new plot</a>";
 
     farmer.postActivity({verb: "purchase",
-                         content: farmer.name + " bought a new plot.",
-                         object: plot.asObject()},
+                         content: content,
+                         object: obj},
                          callback);
 };
 
