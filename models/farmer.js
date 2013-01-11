@@ -165,36 +165,54 @@ Farmer.prototype.buyActivity = function(plot, callback) {
 };
 
 Farmer.prototype.plantActivity = function(crop, callback) {
-    var farmer = this;
+    var farmer = this,
+        obj = crop.asObject(),
+        content = "<a href='" + farmer.homepage + "'>" + farmer.name + "</a> " + 
+            " planted " + 
+            "<a href='" + obj.url + "'>" + obj.displayName + "</a>";
 
     farmer.postActivity({verb: "http://openfarmgame.com/schema/verb/plant",
-                         content: farmer.name + " planted " + crop.name,
-                         object: crop.asObject()},
+                         content: content,
+                         object: obj},
                          callback);
 };
 
 Farmer.prototype.tearUpActivity = function(crop, callback) {
-    var farmer = this;
+    var farmer = this,
+        obj = crop.asObject(),
+        content = "<a href='" + farmer.homepage + "'>" + farmer.name + "</a> " + 
+            " tore up a field of " + 
+             obj.displayName;
+
     farmer.postActivity({verb: "http://openfarmgame.com/schema/verb/tear-up",
-                         content: farmer.name + " tore up " + crop.name,
-                         object: crop.asObject()},
+                         content: content,
+                         object: obj},
                          callback);
 };
 
 Farmer.prototype.waterActivity = function(crop, callback) {
-    var farmer = this;
+    var farmer = this,
+        obj = crop.asObject(),
+        content = "<a href='" + farmer.homepage + "'>" + farmer.name + "</a> " + 
+            " watered " + 
+            "<a href='" + obj.url + "'>" + obj.displayName + "</a>";
 
     farmer.postActivity({verb: "http://openfarmgame.com/schema/verb/water",
-                         content: farmer.name + " watered " + crop.name,
-                         object: crop.asObject()},
+                         content: content,
+                         object: obj},
                          callback);
 };
 
 Farmer.prototype.harvestActivity = function(crop, callback) {
-    var farmer = this;
+    var farmer = this,
+        obj = crop.asObject(),
+        content = "<a href='" + farmer.homepage + "'>" + farmer.name + "</a> " + 
+            " harvested " + 
+            "<a href='" + obj.url + "'>" + obj.displayName + "</a>";
+
     farmer.postActivity({verb: "http://openfarmgame.com/schema/verb/harvest",
-                         content: farmer.name + " harvested " + crop.name,
-                         object: crop.asObject()},
+                         content: content,
+                         object: obj},
                          callback);
 };
 

@@ -19,6 +19,7 @@
 var _ = require("underscore"),
     async = require("async"),
     uuid = require("node-uuid"),
+    OpenFarmGame = require("./openfarmgame"),
     DatabankObject = require("databank").DatabankObject;
 
 var Crop = DatabankObject.subClass("crop");
@@ -76,6 +77,7 @@ Crop.prototype.asObject = function() {
     return {
         id: "urn:uuid:"+crop.uuid,
         objectType: "http://openfarmgame.com/schema/object-type/crop",
+        url: OpenFarmGame.url("/crop/"+crop.uuid),
         displayName: crop.name
     };
 };
