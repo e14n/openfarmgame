@@ -1,4 +1,4 @@
-<h1>A plot by <a href="/farmer/<%- farmer.id %>)"><%- farmer.name %></a></h1>
+<h1>A plot by <a href="/farmer/<%- farmer.id %>"><%- farmer.name %></a></h1>
 
 <ul class="thumbnails">
   <%= partial("plot") %>
