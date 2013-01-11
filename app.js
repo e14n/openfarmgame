@@ -68,6 +68,9 @@ if (!config.params.schema) {
 }
 
 _.extend(config.params.schema, DialbackClient.schema);
+_.extend(config.params.schema, DatabankStore.schema);
+
+// Now, our stuff
 
 _.each([RequestToken, Host, Plot, Crop], function(Cls) {
     config.params.schema[Cls.type] = Cls.schema;
