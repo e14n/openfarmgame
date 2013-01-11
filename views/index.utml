@@ -1,5 +1,14 @@
 <div class="hero-unit">
+
   <h1>Open Farm Game</h1>
-  <p>The game where you plant things and then they grow and you get some points.</p>
-  <p><a class="btn btn-primary btn-large">Get started &raquo;</a></p>
+
+  <p>Build your agricultural empire on the federated social
+  web! <strong>OFG</strong>
+  the <a href="http://en.wikipedia.org/wiki/Social_network_game">social
+  network game</a> where you run a farm, plant and care for crops, and
+  use the proceeds to buy more land and better equipment. Show your friends
+  who&apos;s the farm boss!</p>
+
+  <p><a class="btn btn-primary btn-large" href="/login">Get started &raquo;</a></p>
+
 </div>
