@@ -266,6 +266,8 @@ async.waterfall([
         OpenFarmGame.description = config.description;
         OpenFarmGame.hostname    = config.hostname;
 
+        OpenFarmGame.protocol = (config.key) ? "https" : "http";
+
         // Let Web stuff get to config
 
         app.config = config;
