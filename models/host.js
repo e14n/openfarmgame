@@ -73,16 +73,20 @@ Host.discover = function(hostname, callback) {
                 request_token_endpoint: OAUTH_RT,
                 access_token_endpoint: OAUTH_AT,
                 authorization_endpoint: OAUTH_AUTHZ
-            };
+            },
+                prop,
+                rel;
 
-            _.each(rels, function(rel, prop) {
+            for (prop in rels) {
+                rel = rels[prop];
                 var links = _.where(jrd.links, {rel: rel});
                 if (links.length === 0) {
-                    throw new Error(hostname + " does not implement " + rel);
+                    callback(new Error(hostname + " does not implement " + rel), null);
+                    return;
                 } else {
                     props[prop] = links[0].href;
                 }
-            });
+            }
 
             Host.getCredentials(props.registration_endpoint, callback);
         },
