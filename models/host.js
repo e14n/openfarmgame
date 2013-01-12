@@ -30,6 +30,7 @@ var Host = DatabankObject.subClass("host");
 var OAUTH_RT = "http://apinamespace.org/oauth/request_token",
     OAUTH_AT = "http://apinamespace.org/oauth/access_token",
     OAUTH_AUTHZ = "http://apinamespace.org/oauth/authorize",
+    WHOAMI = "http://apinamespace.org/activitypub/whoami",
     OAUTH_CRED = "registration_endpoint";
 
 Host.schema = {
@@ -40,6 +41,7 @@ Host.schema = {
              "request_token_endpoint",
              "access_token_endpoint",
              "authorization_endpoint",
+             "whoami_endpoint",
              "created",
              "updated"]
 };
@@ -72,7 +74,8 @@ Host.discover = function(hostname, callback) {
                 registration_endpoint: OAUTH_CRED,
                 request_token_endpoint: OAUTH_RT,
                 access_token_endpoint: OAUTH_AT,
-                authorization_endpoint: OAUTH_AUTHZ
+                authorization_endpoint: OAUTH_AUTHZ,
+                whoami_endpoint: WHOAMI
             },
                 prop,
                 rel;
@@ -178,7 +181,7 @@ Host.prototype.whoami = function(token, secret, callback) {
 
     async.waterfall([
         function(callback) {
-            oa.get("http://"+host.hostname+"/api/whoami", token, secret, callback);
+            oa.get(host.whoami_endpoint, token, secret, callback);
         }
     ], function(err, doc, response) {
         var obj;
