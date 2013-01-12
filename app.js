@@ -99,11 +99,20 @@ async.waterfall([
     },
     function(callback) {
 
-        var app, client;
+        var app, bounce, client;
 
-        app = module.exports = express.createServer();
+        if (_.has(config, "key")) {
 
-        config = _.defaults(config, defaults);
+            app = express.createServer({key: fs.readFileSync(config.key),
+                                        cert: fs.readFileSync(config.cert)});
+            bounce = express.createServer(function(req, res, next) {
+                var host = req.header('Host');
+                res.redirect('https://'+host+req.url, 301);
+            });
+
+        } else {
+            app = express.createServer();
+        }
 
         // Configuration
 
@@ -290,7 +299,13 @@ async.waterfall([
         // Start the app
 
         app.listen(config.port, config.address, callback);
-        
+
+        // Start the bouncer
+
+        if (bounce) {
+            bounce.listen(80, config.address);
+        }
+
     }], function() {
         console.log("Express server listening on address %s port %d", config.address, config.port);
 });    
