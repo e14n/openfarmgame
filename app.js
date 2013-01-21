@@ -22,8 +22,10 @@ var fs = require("fs"),
     _ = require("underscore"),
     express = require('express'),
     DialbackClient = require("dialback-client"),
+    Logger = require("bunyan"),
     routes = require('./routes'),
     databank = require("databank"),
+    uuid = require("node-uuid"),
     Databank = databank.Databank,
     DatabankObject = databank.DatabankObject,
     DatabankStore = require('connect-databank')(express),
@@ -44,6 +46,14 @@ var fs = require("fs"),
         driver: "disk",
         name: "Open Farm Game",
         description: "The social game that brings the excitement of subsistence farming to the social internet."
+    },
+    log,
+    logParams = {
+        name: "openfarmgame",
+        serializers: {
+            req: Logger.stdSerializers.req,
+            res: Logger.stdSerializers.res
+        }
     };
 
 if (fs.existsSync("/etc/openfarmgame.json")) {
@@ -52,6 +62,18 @@ if (fs.existsSync("/etc/openfarmgame.json")) {
 } else {
     config = defaults;
 }
+
+if (config.logfile) {
+    logParams.streams = [{path: config.logfile}];
+} else if (config.nologger) {
+    logParams.streams = [{path: "/dev/null"}];
+} else {
+    logParams.streams = [{stream: process.stderr}];
+}
+
+log = new Logger(logParams);
+
+log.info("Initializing pump.io");
 
 if (!config.params) {
     if (config.driver == "disk") {
@@ -85,6 +107,7 @@ var db = Databank.get(config.driver, config.params);
 
 async.waterfall([
     function(callback) {
+        log.info({driver: config.driver, params: config.params}, "Connecting to DB");
         db.connect({}, callback);
     },
     function(callback) {
@@ -95,13 +118,35 @@ async.waterfall([
 
         // Set initial croptype data
 
+        log.info("Setting initial crop data");
+
         CropType.initialData(callback);
     },
     function(callback) {
 
-        var app, bounce, client;
+        var app,
+            bounce,
+            client,
+            requestLogger = function(log) {
+                return function(req, res, next) {
+                    var weblog = log.child({"req_id": uuid.v4(), component: "web"});
+                    var end = res.end;
+                    req.log = weblog;
+                    res.end = function(chunk, encoding) {
+                        var rec;
+                        res.end = end;
+                        res.end(chunk, encoding);
+                        rec = {req: req, res: res};
+                        weblog.info(rec);
+                    };
+                    next();
+                };
+            };
+
 
         if (_.has(config, "key")) {
+
+            log.info("Using SSL");
 
             app = express.createServer({key: fs.readFileSync(config.key),
                                         cert: fs.readFileSync(config.cert)});
@@ -111,16 +156,22 @@ async.waterfall([
             });
 
         } else {
+
+            log.info("Not using SSL");
+
             app = express.createServer();
         }
 
         // Configuration
 
-        var dbstore = new DatabankStore(db, null, 60000);
+        var dbstore = new DatabankStore(db, log, 60000);
+
+        log.info("Configuring app");
 
         app.configure(function(){
             app.set('views', __dirname + '/views');
             app.set('view engine', 'utml');
+            app.use(requestLogger(log));
             app.use(express.bodyParser());
             app.use(express.cookieParser());
             app.use(express.methodOverride());
@@ -226,6 +277,8 @@ async.waterfall([
 
         // Routes
 
+        log.info("Initializing routes");
+
         app.get('/', userAuth, userOptional, routes.index);
         app.get('/login', userAuth, noUser, routes.login);
         app.post('/login', userAuth, noUser, routes.handleLogin);
@@ -249,6 +302,8 @@ async.waterfall([
 
         // Create a dialback client
 
+        log.info("Initializing dialback client");
+
         client = new DialbackClient({
             hostname: config.hostname,
             app: app,
@@ -262,6 +317,11 @@ async.waterfall([
 
         // Configure the service object
 
+        log.info({name: config.name, 
+                  description: config.description, 
+                  hostname: config.hostname},
+                 "Initializing OpenFarmGame object");
+
         OpenFarmGame.name        = config.name;
         OpenFarmGame.description = config.description;
         OpenFarmGame.hostname    = config.hostname;
@@ -274,6 +334,8 @@ async.waterfall([
 
         // For sending notifications
 
+        log.info("Initializing notifier");
+
         var notifier = new Notifier();
 
         app.notify = function(farmer, title, template, data, callback) {
@@ -281,18 +343,19 @@ async.waterfall([
         };
 
         // For handling errors
-        // XXX: switch to bunyan
 
         app.log = function(obj) {
             if (obj instanceof Error) {
-                console.error(obj);
+                log.error(obj);
             } else {
-                console.log(obj);
+                log.info(obj);
             }
         };
 
         // updater -- keeps the world up-to-date
         // XXX: move to master process when clustering
+
+        log.info("Initializing updater");
 
         app.updater = new Updater({notifier: notifier});
 
@@ -300,14 +363,21 @@ async.waterfall([
 
         // Start the app
 
+        log.info({port: config.port, address: config.address}, "Starting app listener");
+
         app.listen(config.port, config.address, callback);
 
         // Start the bouncer
 
         if (bounce) {
+            log.info({port: 80, address: config.address}, "Starting bounce listener");
             bounce.listen(80, config.address);
         }
 
-    }], function() {
-        console.log("Express server listening on address %s port %d", config.address, config.port);
+    }], function(err) {
+        if (err) {
+            log.error(err);
+        } else {
+            console.log("Express server listening on address %s port %d", config.address, config.port);
+        }
 });    
