@@ -33,7 +33,7 @@ exports.hostmeta = function(req, res) {
         links: [
             {
                 rel: "dialback",
-                href: "http://" + req.app.config.hostname + "/dialback"
+                href: OpenFarmGame.url("/dialback")
             }
         ]
     });
