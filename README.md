@@ -1,4 +1,4 @@
-== Open Farm Game ==
+# Open Farm Game
 
 This is a social networking game where you plant some stuff and then
 it grows and then you plant more stuff.
@@ -6,7 +6,7 @@ it grows and then you plant more stuff.
 That's about it for the current version. I'd love to make it more
 interesting.
 
-== File sources ==
+# File sources
 
 I mostly just used Google Image search with the public domain filter
 on. I think a lot of them came from other places.
