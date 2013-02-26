@@ -357,7 +357,7 @@ async.waterfall([
 
         log.info("Initializing updater");
 
-        app.updater = new Updater({notifier: notifier});
+        app.updater = new Updater({notifier: notifier, log: log});
 
         app.updater.start();
 
