@@ -102,5 +102,44 @@
         "ripentime": 120,
         "overripentime": 720,
         "rottime": 720
+    },
+    {
+        "slug": "bellpeppers",
+        "name": "Bell Peppers",
+        "cost": 4,
+        "price": 23,
+        "waterings": 5,
+        "watertime": 120,
+        "reallywatertime": 720,
+        "dehydrationtime": 720,
+        "ripentime": 120,
+        "overripentime": 720,
+        "rottime": 720
+    },
+    {
+        "slug": "onions",
+        "name": "Onions",
+        "cost": 3,
+        "price": 12,
+        "waterings": 6,
+        "watertime": 360,
+        "reallywatertime": 1440,
+        "dehydrationtime": 1440,
+        "ripentime": 360,
+        "overripentime": 1440,
+        "rottime": 1440
+    },
+   {
+        "slug": "chilipeppers",
+        "name": "Chili Peppers",
+        "cost": 5,
+        "price": 26,
+        "waterings": 5,
+        "watertime": 120,
+        "reallywatertime": 720,
+        "dehydrationtime": 720,
+        "ripentime": 120,
+        "overripentime": 360,
+        "rottime": 360
     }
 ]
