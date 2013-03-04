@@ -20,3 +20,6 @@ on. I think a lot of them came from other places.
 * beets.jpg: http://www.flickr.com/photos/adactio/4701228386/ (small world)
 * pumpkins.jpg: http://www.flickr.com/photos/oatsy40/6299968619/
 * potatoes.jpg: http://pixabay.com/en/potatoes-vegetables-raw-uncooked-3455/
+* bellpeppers.jpg: http://www.freestockphotos.biz/stockphoto/9050
+* onions.jpg: http://www.public-domain-image.com/flora-plants-public-domain-images-pictures/vegetables-public-domain-images-pictures/onion-pictures/yellow-onions-vegetables.jpg.html
+* chilipeppers.jpg: http://www.public-domain-image.com/flora-plants-public-domain-images-pictures/vegetables-public-domain-images-pictures/pepper-pictures/chili-chillies-peppers.jpg.html
