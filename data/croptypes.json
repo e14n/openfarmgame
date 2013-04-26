@@ -1,7 +1,7 @@
 [
     {
         "slug": "corn",
-        "name": "Corn",
+        "name": "Corn Patch",
         "cost": 5,
         "price": 17,
         "waterings": 3,
@@ -14,7 +14,7 @@
     },
     {
         "slug": "tomatoes",
-        "name": "Tomatoes",
+        "name": "Tomato Patch",
         "cost": 3,
         "price": 14,
         "waterings": 5,
@@ -27,7 +27,7 @@
     },
     {
         "slug": "beans",
-        "name": "Beans",
+        "name": "Bean Patch",
         "cost": 4,
         "price": 12,
         "waterings": 2,
@@ -40,7 +40,7 @@
     },
     {
         "slug": "strawberries",
-        "name": "Strawberries",
+        "name": "Strawberry Patch",
         "cost": 6,
         "price": 25,
         "waterings": 4,
@@ -53,7 +53,7 @@
     },
     {
         "slug": "wheat",
-        "name": "Wheat",
+        "name": "Wheat Field",
         "cost": 6,
         "price": 16,
         "waterings": 2,
@@ -66,7 +66,7 @@
     },
     {
         "slug": "beets",
-        "name": "Beets",
+        "name": "Beet Patch",
         "cost": 2,
         "price": 8,
         "waterings": 4,
@@ -79,7 +79,7 @@
     },
     {
         "slug": "pumpkins",
-        "name": "Pumpkins",
+        "name": "Pumpkin Patch",
         "cost": 3,
         "price": 11,
         "waterings": 3,
@@ -92,7 +92,7 @@
     },
     {
         "slug": "potatoes",
-        "name": "Potatoes",
+        "name": "Potato Patch",
         "cost": 5,
         "price": 22,
         "waterings": 5,
@@ -105,7 +105,7 @@
     },
     {
         "slug": "bellpeppers",
-        "name": "Bell Peppers",
+        "name": "Bell Pepper Patch",
         "cost": 4,
         "price": 23,
         "waterings": 5,
@@ -118,7 +118,7 @@
     },
     {
         "slug": "onions",
-        "name": "Onions",
+        "name": "Onion Patch",
         "cost": 3,
         "price": 12,
         "waterings": 6,
@@ -131,7 +131,7 @@
     },
    {
         "slug": "chilipeppers",
-        "name": "Chili Peppers",
+        "name": "Chili Pepper Patch",
         "cost": 5,
         "price": 26,
         "waterings": 5,
