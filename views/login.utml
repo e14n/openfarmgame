@@ -1,10 +1,10 @@
 <h1>Login</h1>
 
 <form action="/login" method="post">
-  <label>Webfinger ID</label>
+  <label>Pump handle</label>
   <input class="span6" id="webfinger" name="webfinger" size="30" type="text" placeholder="you@example.com"></input>
-  <span class="help-block">Your Webfinger ID</span>
+  <span class="help-block">Your pump handle</span>
   <input type="submit" class="btn btn-primary" value="Login">
 </form>
 
-  
+If you don't have a pump handle yet, head on over to <a href="http://pump.io">pump.io</a> and you can get one for free!.
